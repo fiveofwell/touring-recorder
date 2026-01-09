@@ -1,43 +1,53 @@
 from datetime import datetime, timezone
 from sqlmodel import select, Session
+import sqlalchemy.dialects.sqlite as sqlite
+
 from db import get_session
 from typing import List
-from models.api_model import GPSData, Tour
-from schemas.api_schema import DataRead
+from models.api_model import PointInDB, TourInDB
+
+def get_tour(tour_id: str, session: Session) -> TourInDB | None:
+    stmt = select(TourInDB).where(TourInDB.tour_id == tour_id)
+    tour_in_db = session.exec(stmt).first()
+    return tour_in_db
 
 
-def get_data() -> List[GPSData]:
-    with get_session() as session:
-        stmt = select(GPSData).order_by(GPSData.timestamp.desc())
-        return session.exec(stmt).all()
+def get_points(tour_id: str, session: Session) -> List[PointInDB]:
+    stmt = select(PointInDB).where(PointInDB.tour_id == tour_id).order_by(PointInDB.timestamp.desc())
+    return session.exec(stmt).all()
 
 
-def check_tour(db: Session, tour_id: str) -> bool:
-    stmt = select(Tour).where(Tour.tour_id == tour_id)
-    tour = db.exec(stmt).first()
-    if tour is None:
-        return False 
+def add_tour(tour_in_db: TourInDB, session: Session) -> None:
+    session.add(tour_in_db)
+    return None
 
-    tour.last_seen_at = datetime.now(timezone.utc)
-    return True
-
-
-def save_points(db: Session, points: List[GPSData]) -> List[int]:
-    db.add_all(points)
-    db.flush()
-
-    return [point.queue_id for point in points] 
+def touch_tour(tour_id: str, session: Session) -> None:
+    tour_in_db = get_tour(tour_id, session)
+    if tour_in_db is not None:
+        tour_in_db.last_seen_at = datetime.now(timezone.utc)
+    return None
 
 
-def start_tour(created_tour: Tour) -> Tour:
-    with get_session() as session:
-        session.add(created_tour)
-        session.commit()
-        session.refresh(created_tour)
-        return created_tour
+def upsert_points(points: List[PointInDB], session: Session) -> None:
+    values = [
+        {
+            "device_id": point.device_id,
+            "tour_id": point.tour_id,
+            "client_point_id": point.client_point_id,
+            "latitude": point.latitude,
+            "longitude": point.longitude,
+            "timestamp": point.timestamp,
+        }
+        for point in points
+    ]
+
+    stmt = sqlite.insert(PointInDB).values(values).on_conflict_do_nothing(
+        index_elements=['device_id', 'client_point_id']
+    )
+    session.exec(stmt)
+    return None
 
 
-def get_tours() -> List[Tour]:
-    with get_session() as session:
-        stmt = select(Tour).order_by(Tour.started_at.desc())
-        return session.exec(stmt).all()
+def get_tours(session: Session) -> List[TourInDB]:
+    stmt = select(TourInDB).order_by(TourInDB.started_at.desc())
+    return session.exec(stmt).all()
