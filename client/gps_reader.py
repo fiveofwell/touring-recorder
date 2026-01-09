@@ -5,7 +5,6 @@ import logging
 import settings
 import db
 from datetime import datetime, timezone
-from api_client import start_tour
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +31,13 @@ def convert_nmea(val):
     return degree + minutes / 60
 
 
-def read_gps_data():
-    tour_id = None
+def read_gps_data(tour_id):
     serial_port = None
 
     try:
         now = time.monotonic()
         next_enqueue = now
         next_send = now
-        next_session_try = now
         flow_control = 1
 
         serial_port = serial.Serial(
@@ -55,18 +52,11 @@ def read_gps_data():
             now = time.monotonic()
 
             if now >= next_send:
-                if tour_id:
-                    status = db.dequeue_data(tour_id)
-                    if status == "sent":
-                        flow_control = 1
-                    elif status == "fail":
-                        flow_control = min(flow_control * 2, settings.MAX_FLOW_CONTROL)
-                    
-                elif now >= next_session_try:
-                    tour_id = start_tour()
-                    now = time.monotonic()
-                    next_session_try = now + settings.SESSION_RETRY_INTERVAL_SEC
-
+                status = db.dequeue_data()
+                if status == "sent":
+                    flow_control = 1
+                elif status == "fail":
+                    flow_control = min(flow_control * 2, settings.MAX_FLOW_CONTROL)
                 next_send += settings.FLUSH_INTERVAL_SEC * flow_control
 
             if now < next_enqueue:
@@ -90,7 +80,7 @@ def read_gps_data():
             timestamp = convert_date(fields[1], fields[9])
             logger.debug("GPS:%.6f,%.6f,%s",latitude, longitude, timestamp)
 
-            db.enqueue_data(latitude, longitude, timestamp)
+            db.enqueue_data(tour_id, latitude, longitude, timestamp)
             next_enqueue = now + settings.STORE_INTERVAL_SEC
 
 
