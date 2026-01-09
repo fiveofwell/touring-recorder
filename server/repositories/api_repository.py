@@ -1,9 +1,8 @@
+from typing import List
 from datetime import datetime, timezone
 from sqlmodel import select, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
-from db import get_session
-from typing import List
 from models.api_model import PointInDB, TourInDB
 
 def get_tour(tour_id: str, session: Session) -> TourInDB | None:
@@ -42,7 +41,7 @@ def upsert_points(points: List[PointInDB], session: Session) -> None:
     ]
 
     stmt = sqlite.insert(PointInDB).values(values).on_conflict_do_nothing(
-        index_elements=['device_id', 'client_point_id']
+        index_elements=['tour_id', 'client_point_id']
     )
     session.exec(stmt)
     return None
