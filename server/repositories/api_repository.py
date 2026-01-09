@@ -1,9 +1,8 @@
+from typing import List
 from datetime import datetime, timezone
 from sqlmodel import select, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
-from db import get_session
-from typing import List
 from models.api_model import PointInDB, TourInDB
 
 def get_tour(tour_id: str, session: Session) -> TourInDB | None:

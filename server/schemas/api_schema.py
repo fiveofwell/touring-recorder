@@ -1,38 +1,37 @@
 from typing import List
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 
-class DataRead(BaseModel):
+class Point(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    device_id: str
-    tour_id: str
+    client_point_id: int
     latitude: float
     longitude: float
     timestamp: datetime
 
 
-class AcceptedData(BaseModel):
-    accepted_ids: List[int]
+class PointsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-
-class Data(BaseModel):
-    queue_id: int
     device_id: str
-    latitude: float
-    longitude: float
-    timestamp: datetime
+    points: List[Point]
 
 
-class DataPost(BaseModel):
-    tour_id: str
-    points: List[Data]
+class PointsPost(BaseModel):
+    device_id: str
+    points: List[Point]
 
 
-class TourRead(BaseModel):
+class SavePointsResult(BaseModel):
+    ok: bool
+
+
+class TourResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     tour_id: str
+    device_id: str
     started_at: datetime
     last_seen_at: datetime
 

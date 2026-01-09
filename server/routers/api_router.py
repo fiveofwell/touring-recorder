@@ -1,27 +1,31 @@
 from typing import List
-from fastapi import APIRouter, Header
-from schemas.api_schema import DataRead, DataPost, TourRead, AcceptedData
+from fastapi import APIRouter, Header, Depends
+from sqlmodel import Session
+
+from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse
+from db import get_session
 from services import api_service
 
 router = APIRouter(prefix="/api", tags=["api"])
 
-@router.get("/gps/points", response_model=List[DataRead])
-def get_data():
-    return api_service.get_data()
+@router.get("/tours/{tour_id}", response_model=PointsResponse)
+def get_points(tour_id: str, session: Session = Depends(get_session)):
+    return api_service.get_points(tour_id, session)
 
 
-@router.post("/gps/points", response_model=AcceptedData)
-def save_points(data: DataPost, x_api_key: str = Header(..., alias="X-API-KEY")):
-    return api_service.save_points(data.tour_id, data.points, x_api_key)
+@router.post("/tours/{tour_id}", response_model=SavePointsResult)
+def save_points(
+    tour_id: str,
+    points: PointsPost,
+    x_api_key: str = Header(..., alias="X-API-KEY"),
+    session: Session = Depends(get_session)
+):
+    api_service.save_points(tour_id, points, x_api_key, session)
+    return SavePointsResult(ok=True)
 
 
-@router.get("/tours", response_model=List[TourRead])
-def get_tours():
-    return api_service.get_tours()
-
-
-@router.get("/tours/start", response_model=TourRead)
-def start_tour():
-    return api_service.start_tour()
+@router.get("/tours", response_model=List[TourResponse])
+def get_tours(session: Session = Depends(get_session)):
+    return api_service.get_tours(session)
 
 
