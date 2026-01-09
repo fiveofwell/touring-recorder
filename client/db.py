@@ -9,10 +9,16 @@ logger = logging.getLogger(__name__)
 def init_send_queue_db():
     with sqlite3.connect(settings.DBNAME) as conn:
         cur = conn.cursor()
-        cur.execute('CREATE TABLE IF NOT EXISTS gps_send_queue(queue_id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT, device_id TEXT, latitude REAL, longitude REAL, timestamp TEXT)')
-
-        # 送信キューにデータが残っているかもしれないので起動時にFlush
-        cur.execute('DELETE FROM gps_send_queue')
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS
+            gps_send_queue(
+                client_point_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tour_id TEXT,
+                latitude REAL,
+                longitude REAL,
+                timestamp TEXT
+            )
+        """)
 
 
 def dequeue_data(tour_id):
@@ -20,8 +26,14 @@ def dequeue_data(tour_id):
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
-        cur.execute(
-            'SELECT queue_id, device_id, latitude, longitude, timestamp FROM gps_send_queue ORDER BY queue_id LIMIT ?',
+        cur.execute("""
+            SELECT client_point_id,
+            latitude,
+            longitude,
+            timestamp
+            FROM gps_send_queue
+            ORDER BY client_point_id
+            LIMIT ?""",
             (settings.SEND_LIMIT,)
         )
 
@@ -40,7 +52,7 @@ def dequeue_data(tour_id):
             return "empty"
 
         placeholders = ",".join("?" for _ in accepted_ids)
-        sql = f'DELETE FROM gps_send_queue WHERE queue_id IN ({placeholders})'
+        sql = f'DELETE FROM gps_send_queue WHERE client_point_id IN ({placeholders})'
 
         cur.execute(sql, accepted_ids)
         conn.commit()
@@ -54,13 +66,11 @@ def enqueue_data(latitude, longitude, timestamp):
         cur = conn.cursor()
 
         values = (
-            datetime.now(timezone.utc),
-            settings.DEVICE_ID,
             latitude,
             longitude,
             timestamp
         )
-        sql = 'INSERT INTO gps_send_queue (created_at, device_id, latitude, longitude, timestamp) VALUES (?, ?, ?, ?, ?)'
+        sql = 'INSERT INTO gps_send_queue (latitude, longitude, timestamp) VALUES (?, ?, ?)'
 
         cur.execute(sql, values)
         conn.commit()
