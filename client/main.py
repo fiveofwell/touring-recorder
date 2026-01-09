@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import db
 from gps_reader import read_gps_data
@@ -12,7 +13,10 @@ def main():
     )
 
     db.init_send_queue_db()
-    read_gps_data()
+    tour_id = str(uuid.uuid4())
+    logger.info("ツーリング開始 ツーリングID: %s", tour_id)
+
+    read_gps_data(tour_id)
 
 if __name__ == '__main__':
     try:

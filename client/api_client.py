@@ -1,19 +1,23 @@
 import requests
-import settings
 import logging
+import urllib.parse as urlparse
+
+import settings
 
 logger = logging.getLogger(__name__)
 
 def post_gps_data(tour_id, points):
-    headers = {'X-API-Key': settings.X_API_KEY}
+    headers = {'X-API-KEY': settings.X_API_KEY}
     payload = {
-        "device_id": settings.device_id,
+        "device_id": settings.DEVICE_ID,
         "points": points,
     }
 
     try:
+        api_url = urlparse.urljoin(settings.API_URL, tour_id)
+
         response = requests.post(
-            settings.API_URL,
+            api_url,
             headers=headers,
             json=payload,
             timeout=settings.POST_TIMEOUT_SEC
@@ -25,6 +29,7 @@ def post_gps_data(tour_id, points):
     except requests.exceptions.HTTPError as e:
         if e.response is not None:
             logger.warning("HTTPエラー:%d", e.response.status_code)
+            logger.warning("HTTPエラー:%s", e.response.text)
         return None
 
     except requests.exceptions.RequestException:
