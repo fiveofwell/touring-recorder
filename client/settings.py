@@ -8,7 +8,6 @@ X_API_KEY = os.getenv('X_API_KEY')
 
 # endpoints
 API_URL = os.getenv('API_URL')
-TOUR_START_URL = os.getenv('SESSION_START_URL')
 
 # serial
 SERIAL_PORT = os.getenv('SERIAL_PORT')
