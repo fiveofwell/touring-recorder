@@ -1,14 +1,17 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from services.exceptions import UnauthorizedKey, TourNotFound
+from security import verify_api_key
+
+from services.exceptions import TourNotFound
 from db import create_db_and_tables
+from routers.public_api_router import router as public_api_router
+from routers.internal_api_router import router as internal_api_router
 import settings
 
-from routers.api_router import router as api_router
-
 app = FastAPI()
-app.include_router(api_router)
+app.include_router(public_api_router, dependencies=[Depends(verify_api_key)])
+app.include_router(internal_api_router)
 
 origins = [
     settings.FRONTEND_ORIGIN,
@@ -27,16 +30,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=headers,
 )
-
-@app.exception_handler(UnauthorizedKey)
-async def unauthorized_key_handler(
-        request: Request,
-        exc: UnauthorizedKey 
-):
-    return JSONResponse(
-        status_code=401,
-            content={"detail": "unauthorized key"},
-    )
 
 
 @app.exception_handler(TourNotFound)

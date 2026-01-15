@@ -6,7 +6,7 @@ from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, Tou
 from db import get_session
 from services import api_service
 
-router = APIRouter(prefix="/api", tags=["api"])
+router = APIRouter(prefix="/api/internal", tags=["internal api"])
 
 @router.get("/tours/{tour_id}", response_model=PointsResponse)
 def get_points(tour_id: str, session: Session = Depends(get_session)):
@@ -17,10 +17,9 @@ def get_points(tour_id: str, session: Session = Depends(get_session)):
 def save_points(
     tour_id: str,
     points: PointsPost,
-    x_api_key: str = Header(..., alias="X-API-KEY"),
     session: Session = Depends(get_session)
 ):
-    api_service.save_points(tour_id, points, x_api_key, session)
+    api_service.save_points(tour_id, points, session)
     return SavePointsResult(ok=True)
 
 

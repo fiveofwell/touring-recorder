@@ -4,11 +4,8 @@ from datetime import datetime, timezone
 
 from models.api_model import PointInDB, TourInDB
 from schemas.api_schema import Point, PointsResponse, PointsPost, TourResponse
-from services.exceptions import UnauthorizedKey, TourNotFound
+from services.exceptions import TourNotFound
 from repositories import api_repository
-import settings
-
-API_KEY = settings.API_KEY
 
 def get_points(tour_id: str, session: Session) -> PointsResponse:
     tour_in_db = api_repository.get_tour(tour_id, session)
@@ -26,12 +23,8 @@ def get_points(tour_id: str, session: Session) -> PointsResponse:
 def save_points(
     tour_id: str,
     points: PointsPost, 
-    x_api_key: str,
     session: Session
 ) -> None:
-    if x_api_key != API_KEY:
-        raise UnauthorizedKey()
-
     device_id = points.device_id
 
     if not api_repository.get_tour(tour_id, session):
