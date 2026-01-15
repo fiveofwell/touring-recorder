@@ -7,7 +7,7 @@ function formatDate(iso) {
 
 
 async function getTours() {
-	const url = `${API_BASE_URL}/api/tours/`;
+	const url = `${API_BASE_URL}/tours`;
 
 	showLoading()
 

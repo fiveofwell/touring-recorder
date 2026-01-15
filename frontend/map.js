@@ -16,7 +16,7 @@ async function getPoints() {
 	showMessage("読み込み中・・・");
 
 	try {
-		const url = `${API_BASE_URL}/api/tours/${encodeURIComponent(tour_id)}`;
+		const url = `${API_BASE_URL}/tours/${encodeURIComponent(tour_id)}`;
 		const response = await fetch(
 			url,
 			{
