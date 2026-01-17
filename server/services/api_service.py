@@ -56,5 +56,16 @@ def save_points(
     return None
 
 
+def delete_tour(tour_id: str, session: Session) -> None:
+    if api_repository.get_tour(tour_id, session) is None:
+        raise TourNotFound()
+
+    api_repository.delete_points(tour_id, session)
+    api_repository.delete_tour(tour_id, session)
+
+    session.commit()
+    return None
+
+
 def get_tours(session: Session) -> List[TourResponse]:
     return [TourResponse.model_validate(e) for e in api_repository.get_tours(session)]

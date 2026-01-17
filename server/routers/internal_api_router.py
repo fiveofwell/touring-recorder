@@ -23,6 +23,12 @@ def save_points(
     return SavePointsResult(ok=True)
 
 
+@router.delete("/tours/{tour_id}", status_code=204)
+def delete_tour(tour_id: str, session: Session = Depends(get_session)):
+    api_service.delete_tour(tour_id, session)
+    return None
+
+
 @router.get("/tours", response_model=List[TourResponse])
 def get_tours(session: Session = Depends(get_session)):
     return api_service.get_tours(session)

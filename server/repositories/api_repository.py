@@ -1,6 +1,6 @@
 from typing import List
 from datetime import datetime, timezone
-from sqlmodel import select, Session
+from sqlmodel import select, delete, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
 from models.api_model import PointInDB, TourInDB
@@ -19,6 +19,7 @@ def get_points(tour_id: str, session: Session) -> List[PointInDB]:
 def add_tour(tour_in_db: TourInDB, session: Session) -> None:
     session.add(tour_in_db)
     return None
+
 
 def touch_tour(tour_id: str, session: Session) -> None:
     tour_in_db = get_tour(tour_id, session)
@@ -46,6 +47,18 @@ def upsert_points(points: List[PointInDB], session: Session) -> None:
     session.exec(stmt)
     return None
 
+
+def delete_tour(tour_id: str, session: Session) -> None:
+    stmt = delete(TourInDB).where(TourInDB.tour_id == tour_id)
+    session.exec(stmt)
+    return None
+
+
+def delete_points(tour_id: str, session: Session) -> None:
+    stmt = delete(PointInDB).where(PointInDB.tour_id == tour_id)
+    session.exec(stmt)
+    return None
+    
 
 def get_tours(session: Session) -> List[TourInDB]:
     stmt = select(TourInDB).order_by(TourInDB.started_at.desc())
