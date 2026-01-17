@@ -7,6 +7,7 @@ import db
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
+running = True
 
 def convert_date(utc, date):
     if not utc or not date:
@@ -31,6 +32,11 @@ def convert_nmea(val):
     return degree + minutes / 60
 
 
+def stop():
+    global running
+    running = False
+
+
 def read_gps_data(tour_id):
     serial_port = None
 
@@ -46,7 +52,7 @@ def read_gps_data(tour_id):
             timeout=settings.READ_TIMEOUT_SEC
         )
 
-        while True:
+        while running:
             data = serial_port.readline()
             line = data.decode('ascii', errors='ignore').strip()
             now = time.monotonic()
