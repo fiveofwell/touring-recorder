@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException
-from fastapi.security.api_key import APIKeyHeader, APIKey
+from fastapi.security.api_key import APIKeyHeader
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 import settings

@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, create_engine, Session
 
-engine = create_engine("sqlite:///./app.db", echo=True)
+engine = create_engine(
+    "sqlite:///./app.db"
+)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)

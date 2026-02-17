@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from security import verify_api_key
 
-from services.exceptions import TourNotFound
 from db import create_db_and_tables
 from routers.public_api_router import router as public_api_router
 from routers.internal_api_router import router as internal_api_router
+from services.exceptions import TourNotFound
+from security import verify_api_key
 import settings
 
 app = FastAPI()
@@ -33,7 +33,7 @@ app.add_middleware(
 
 
 @app.exception_handler(TourNotFound)
-async def session_not_found_handler(
+async def tour_not_found_handler(
         request: Request,
         exc: TourNotFound 
 ):
