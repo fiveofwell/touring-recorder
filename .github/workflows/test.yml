@@ -17,6 +17,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Create .env file
+        working-directory: ./server
+        run: echo "X_API_KEY=${{ secrets.X_API_KEY }}" > .env
+
       - name: Install dependencies
         working-directory: ./server
         run: docker compose build
