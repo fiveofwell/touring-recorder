@@ -14,7 +14,7 @@ from sqlmodel import SQLModel, create_engine, Session
 @pytest.fixture
 def client():
     engine = create_engine(
-        "sqlite:///./test_app.db"
+        "sqlite:///./data/test_app.db"
     )
     SQLModel.metadata.create_all(engine)
 

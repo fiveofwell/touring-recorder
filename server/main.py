@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from db import create_db_and_tables
@@ -9,28 +8,14 @@ from services.exceptions import TourNotFound
 from security import verify_api_key
 import settings
 
-app = FastAPI()
-app.include_router(public_api_router, dependencies=[Depends(verify_api_key)])
-app.include_router(internal_api_router)
-
-origins = [
-    settings.FRONTEND_ORIGIN,
-]
-
-headers = [
-        "Content-Type",
-        "Authorization",
-        "X-API-KEY",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=headers,
+app = FastAPI(
+    docs_url="/api/internal/docs",
+    redoc_url="/api/internal/redoc",
+    openapi_url="/api/internal/openapi.json"
 )
 
+app.include_router(public_api_router, dependencies=[Depends(verify_api_key)])
+app.include_router(internal_api_router)
 
 @app.exception_handler(TourNotFound)
 async def tour_not_found_handler(

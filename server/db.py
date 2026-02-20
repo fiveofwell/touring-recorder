@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, create_engine, Session
 
 engine = create_engine(
-    "sqlite:///./app.db"
+    "sqlite:///./data/app.db"
 )
 
 def create_db_and_tables():
