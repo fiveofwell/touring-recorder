@@ -1,0 +1,19 @@
+services:
+  app:
+    build: ./server
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./server/data:/app/data
+    restart: unless-stopped
+
+  nginx:
+    build: ./frontend
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    restart: unless-stopped
