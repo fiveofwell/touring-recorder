@@ -1,6 +1,6 @@
 function formatDate(iso) {
   if (!iso) return "-";
-  return new Date(iso).toLocaleString();
+  return new Date(iso + "Z").toLocaleString("ja-JP");
 }
 
 
@@ -68,9 +68,6 @@ function showTours(tours) {
 			deleteTour(tour.tour_id);
 		});
 
-		//const tourIdElement = li.querySelector(".tour-detail")
-		// tourIdElement.after(" ", deleteButton);
-
 		const nameChangeButton = document.createElement("button");
 		nameChangeButton.textContent = "このツ-リングの名前を変更";
 		nameChangeButton.addEventListener("click", () => {
@@ -79,7 +76,6 @@ function showTours(tours) {
 
 		});
 
-		//tourIdElement.after(" ", nameChangeButton);
 		li.appendChild(nameChangeButton)
 		li.appendChild(deleteButton)
 

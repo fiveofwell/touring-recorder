@@ -1,3 +1,9 @@
+function formatDate(iso) {
+  if (!iso) return "-";
+  return new Date(iso + "Z").toLocaleString("ja-JP");
+}
+
+
 function getTourId() {
 	const url = new URL(window.location.href);
 	return url.searchParams.get("tour_id");
@@ -59,6 +65,19 @@ function make_map(response) {
 		latlngs.push([point.latitude, point.longitude])
 	}
 
+	if (startMarker && map.hasLayer(startMarker)) {
+		map.removeLayer(startMarker);
+	}
+	if (endMarker && map.hasLayer(endMarker)) {
+		map.removeLayer(endMarker);
+	}
+
+	startMarker = L.marker([points[points.length - 1].latitude, points[points.length - 1].longitude]).addTo(map);
+	startMarker.bindPopup("ツーリング開始: " + formatDate(points[points.length - 1].timestamp))
+	startMarker.openPopup();
+
+	endMarker = L.marker([points[0].latitude, points[0].longitude]).addTo(map);
+	endMarker.bindPopup("ツーリング終了: " + formatDate(points[0].timestamp))
 	if (polyline && map.hasLayer(polyline)) {
 		map.removeLayer(polyline);
 	}
@@ -89,5 +108,7 @@ function hideMessage() {
 
 let map;
 let polyline;
+let startMarker;
+let endMarker;
 
 getPoints();
