@@ -17,6 +17,7 @@ class PointInDB(SQLModel, table=True):
 
 class TourInDB(SQLModel, table=True):
     tour_id: str = Field(primary_key=True, index=True)
+    tour_name: str
     device_id: str
     started_at: datetime = Field(index=True)
     last_seen_at: datetime

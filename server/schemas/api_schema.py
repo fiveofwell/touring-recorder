@@ -31,7 +31,11 @@ class TourResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     tour_id: str
+    tour_name: str
     device_id: str
     started_at: datetime
     last_seen_at: datetime
 
+
+class TourUpdate(BaseModel):
+    tour_name: str

@@ -31,6 +31,7 @@ def save_points(
         now = datetime.now(timezone.utc)
         tour_in_db = TourInDB(
             tour_id = tour_id,
+            tour_name = tour_id,
             device_id = device_id,
             started_at = now,
             last_seen_at = now
@@ -69,3 +70,17 @@ def delete_tour(tour_id: str, session: Session) -> None:
 
 def get_tours(session: Session) -> List[TourResponse]:
     return [TourResponse.model_validate(e) for e in api_repository.get_tours(session)]
+
+
+def update_tour_name(
+    tour_id: str,
+    tour_name: str,
+    session: Session
+) -> TourResponse:
+    tour_in_db = api_repository.get_tour(tour_id, session)
+    if tour_in_db is None:
+        raise TourNotFound()
+
+    tour_in_db.tour_name = tour_name
+    session.commit()
+    return TourResponse.model_validate(tour_in_db)

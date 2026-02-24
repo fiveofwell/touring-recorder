@@ -1,8 +1,8 @@
 from typing import List
-from fastapi import APIRouter, Header, Depends
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse
+from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate
 from db import get_session
 from services import api_service
 
@@ -34,3 +34,10 @@ def get_tours(session: Session = Depends(get_session)):
     return api_service.get_tours(session)
 
 
+@router.patch("/tours/{tour_id}", response_model=TourResponse)
+def update_tour_name(
+    tour_id: str,
+    body: TourUpdate,
+    session: Session = Depends(get_session)
+):
+    return api_service.update_tour_name(tour_id, body.tour_name, session)
