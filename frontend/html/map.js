@@ -1,5 +1,3 @@
-import { API_BASE_URL } from "./settings.js"
-
 function getTourId() {
 	const url = new URL(window.location.href);
 	return url.searchParams.get("tour_id");
@@ -16,7 +14,7 @@ async function getPoints() {
 	showMessage("読み込み中・・・");
 
 	try {
-		const url = `${API_BASE_URL}/tours/${encodeURIComponent(tour_id)}`;
+		const url = `/api/internal/tours/${encodeURIComponent(tour_id)}`;
 		const response = await fetch(
 			url,
 			{

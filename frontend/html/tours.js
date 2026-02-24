@@ -1,5 +1,3 @@
-import { API_BASE_URL } from "./settings.js"
-
 function formatDate(iso) {
   if (!iso) return "-";
   return new Date(iso).toLocaleString();
@@ -7,7 +5,7 @@ function formatDate(iso) {
 
 
 async function getTours() {
-	const url = `${API_BASE_URL}/tours`;
+	const url = `/api/internal/tours`;
 
 	showLoading()
 
@@ -47,8 +45,11 @@ function showTours(tours) {
 	for (const tour of tours) {
 		const li = document.createElement('li');
 		li.innerHTML = `
-			<a class="tour-id" href="./view-tour.html?tour_id=${encodeURIComponent(tour.tour_id)}">${tour.tour_id}</a>
+			<a class="tour-detail" href="./view-tour.html?tour_id=${encodeURIComponent(tour.tour_id)}">${tour.tour_name}</a>
 			<ul>
+				<li>
+					<p>tour id: ${tour.tour_id}</p>
+				</li>
 				<li>
 					<p>device id: ${tour.device_id}</p>
 				</li>
@@ -61,13 +62,28 @@ function showTours(tours) {
 			</ul>
 		`;
 
-		const button = document.createElement("button");
-		button.textContent = "このツアーの履歴を削除";
-		button.addEventListener("click", () => {
+		const deleteButton = document.createElement("button");
+		deleteButton.textContent = "このツーリングの履歴を削除";
+		deleteButton.addEventListener("click", () => {
 			deleteTour(tour.tour_id);
 		});
 
-		li.querySelector(".tour-id").after(" ", button);
+		//const tourIdElement = li.querySelector(".tour-detail")
+		// tourIdElement.after(" ", deleteButton);
+
+		const nameChangeButton = document.createElement("button");
+		nameChangeButton.textContent = "このツ-リングの名前を変更";
+		nameChangeButton.addEventListener("click", () => {
+			const url = "./change-tour-name.html?tour_id=" + encodeURIComponent(tour.tour_id)
+			window.location.href = url
+
+		});
+
+		//tourIdElement.after(" ", nameChangeButton);
+		li.appendChild(nameChangeButton)
+		li.appendChild(deleteButton)
+
+		li.appendChild(document.createElement('hr'))
 
 		list.appendChild(li)
 	}
@@ -75,7 +91,7 @@ function showTours(tours) {
 
 
 async function deleteTour(tour_id) {
-	if (!confirm("本当にこのツアーの履歴を削除しますか？")) {
+	if (!confirm("本当にこのツーリングの履歴を削除しますか？")) {
 		return;
 	}
 

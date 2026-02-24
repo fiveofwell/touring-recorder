@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Touring Recorder</title>
+</head>
+<body>
+	<label>新しいツーリング名:<input id="tourName" type="text" /></label>
+	<button id="saveBtn">保存</button>
+	<script>
+		function getTourId() {
+			const url = new URL(window.location.href);
+			return url.searchParams.get("tour_id");
+		}
+
+
+		async function patchTourName() {
+			const tourId = getTourId();
+			const url = `/api/internal/tours/${tourId}`;
+
+			const newTourName = document.getElementById("tourName").value;
+		
+		
+			try {
+				const response = await fetch(
+					url, {
+						method: "PATCH",
+						headers: {
+							Accept: "application/json",
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							tour_name: newTourName
+						})
+					}
+				);
+			
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status} ${response.statusText}`);
+				}
+
+				location.replace("/");
+		
+		
+			} catch (error) {
+				console.error('エラーが発生しました', error);
+			}
+		}
+
+		const button = document.getElementById("saveBtn");
+		button.addEventListener("click", patchTourName);
+
+	</script>
+</body>
+</html>
