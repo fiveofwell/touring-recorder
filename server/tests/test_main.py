@@ -1,5 +1,6 @@
 import uuid
 from tests.test_utils import create_test_tour, create_invalid_test_tour, create_test_tour_with_apikey
+from schemas.api_schema import TourUpdate
 import settings
 
 def test_root(client):
@@ -89,3 +90,17 @@ def test_public_post_invalid_apikey(client):
 
     response = client.get(f"/api/internal/tours/{tour_id}")
     assert response.status_code == 404 
+
+
+def test_tour_name_change(client):
+    tour_id = str(uuid.uuid4())
+    create_test_tour(client, tour_id)
+
+    tour_name = str(uuid.uuid4())
+    body = TourUpdate(
+            tour_name = tour_name
+    )
+
+    response = client.patch(f"/api/internal/tours/{tour_id}", json=body.model_dump(mode="json"))
+    assert response.status_code == 200
+    assert response.json()["tour_name"] == tour_name
