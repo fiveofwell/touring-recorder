@@ -10,6 +10,7 @@ GPSデータを取得し、APIサーバに送信して保存します。
 - ツーリングごと (Raspberry Pi 起動ごと) の走行データ取得
 - ツーリングごとの走行ルート描画
 - 通信切断時のローカルデータ保存・再送
+- ツーリングへの命名
 
 ## 表示イメージ
 ![走行ルート表示](https://github.com/user-attachments/assets/7b841eb2-3c3d-4f7f-9842-88e1a8df1ae0)  
@@ -40,6 +41,10 @@ DELETE /api/internal/tours/{tour_id}
 ### ツーリング一覧取得
 ```
 GET /api/internal/tours
+```
+### ツーリングの名前の変更
+```
+PATCH /api/internal/tours/{tour_id}
 ```
 
 ## 使用した技術・サービス
@@ -74,7 +79,6 @@ GET /api/internal/tours
 - pytestによる自動テスト
 
 ## 改善したい・追加したい機能
-- ツーリングに名前を付ける機能
 - 複数ユーザー、複数デバイスの認証
 - 走行距離の計算機能
 - ツーリングの表示順の変更
