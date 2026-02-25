@@ -1,5 +1,4 @@
 from typing import List
-from datetime import datetime, timezone
 from sqlmodel import select, delete, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
@@ -21,27 +20,8 @@ def add_tour(tour_in_db: TourInDB, session: Session) -> None:
     return None
 
 
-def touch_tour(tour_id: str, session: Session) -> None:
-    tour_in_db = get_tour(tour_id, session)
-    if tour_in_db is not None:
-        tour_in_db.last_seen_at = datetime.now(timezone.utc)
-    return None
-
-
 def upsert_points(points: List[PointInDB], session: Session) -> None:
-    values = [
-        {
-            "device_id": point.device_id,
-            "tour_id": point.tour_id,
-            "client_point_id": point.client_point_id,
-            "latitude": point.latitude,
-            "longitude": point.longitude,
-            "timestamp": point.timestamp,
-        }
-        for point in points
-    ]
-
-    stmt = sqlite.insert(PointInDB).values(values).on_conflict_do_nothing(
+    stmt = sqlite.insert(PointInDB).values([point.model_dump() for point in points]).on_conflict_do_nothing(
         index_elements=['tour_id', 'client_point_id']
     )
     session.exec(stmt)

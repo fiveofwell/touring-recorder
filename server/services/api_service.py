@@ -13,7 +13,6 @@ def get_points(tour_id: str, session: Session) -> PointsResponse:
         raise TourNotFound()
 
     points_in_db = api_repository.get_points(tour_id, session)
-    print(len(points_in_db))
     return PointsResponse(
             device_id = tour_in_db.device_id,
             points = [Point.model_validate(e) for e in points_in_db]
@@ -26,9 +25,10 @@ def save_points(
     session: Session
 ) -> None:
     device_id = points.device_id
+    now = datetime.now(timezone.utc)
+    tour_in_db = api_repository.get_tour(tour_id, session)
 
-    if not api_repository.get_tour(tour_id, session):
-        now = datetime.now(timezone.utc)
+    if tour_in_db is None:
         tour_in_db = TourInDB(
             tour_id = tour_id,
             tour_name = tour_id,
@@ -37,6 +37,8 @@ def save_points(
             last_seen_at = now
         )
         api_repository.add_tour(tour_in_db, session)
+    else:
+        tour_in_db.last_seen_at = now
 
     points_in_db = [
         PointInDB(
@@ -51,7 +53,6 @@ def save_points(
     ]
 
     api_repository.upsert_points(points_in_db, session)
-    api_repository.touch_tour(tour_id, session)
 
     session.commit()
     return None
