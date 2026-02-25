@@ -91,7 +91,7 @@ async function deleteTour(tour_id) {
 		return;
 	}
 
-	const url = `${API_BASE_URL}/tours/${tour_id}`;
+	const url = `/api/internal/tours/${tour_id}`;
 
 	try {
 		const response = await fetch(

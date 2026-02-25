@@ -6,7 +6,6 @@ from routers.public_api_router import router as public_api_router
 from routers.internal_api_router import router as internal_api_router
 from services.exceptions import TourNotFound
 from security import verify_api_key
-import settings
 
 app = FastAPI(
     docs_url="/api/internal/docs",
