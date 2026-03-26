@@ -1,17 +1,20 @@
 services:
-  app:
+  backend:
     build: ./server
     env_file:
       - ./server/.env
+    ports:
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./server/data:/app/data
     restart: unless-stopped
 
-  nginx:
+  frontend:
     build: ./frontend
+    ports:
+      - "127.0.0.1:8080:80"
     depends_on:
-      - app
-    restart: unless-stopped
+      - backend
 
   cloudflared:
     image: cloudflare/cloudflared:latest

@@ -27,4 +27,4 @@ jobs:
 
       - name: Run pytest
         working-directory: ./server
-        run: docker compose run --rm app pytest
+        run: docker compose run --rm backend pytest
