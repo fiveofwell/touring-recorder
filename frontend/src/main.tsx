@@ -4,6 +4,9 @@ import { TourListPage } from './tour-list-page';
 import { TourDetailPage } from './tour-detail-page';
 import { TourNameChangePage } from './tour-name-change-page';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { setupLeafletIcons } from './lib/leaflet';
+
+setupLeafletIcons();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
