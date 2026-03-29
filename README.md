@@ -2,11 +2,11 @@
 
 ## 概要
 Touring Recorderは、Raspberry Pi Zero 2とFastAPIを用いた、車やバイクのツーリング記録システムです。  
-GPSデータを取得し、APIサーバに送信して保存します。  
 通信が不安定な環境でもデータを欠損させず記録できる、実運用中のシステムです。
 
 ## 機能
 - GPSデータの取得 (緯度・経度・時刻)
+- APIサーバへのGPSデータの送信
 - ツーリングごと (Raspberry Pi 起動ごと) の走行データ取得
 - ツーリングごとの走行ルート描画
 - 通信切断時のローカルデータ保存・再送
@@ -19,7 +19,7 @@ GPSデータを取得し、APIサーバに送信して保存します。
 ネットワーク接続が不安定な林道でも、GPSのデータをローカルに一時保存し、接続回復後に自動で再送することで記録が失われません。
 
 ## 構成
-![構成図](https://github.com/user-attachments/assets/ad5cc470-907a-45cd-a946-01d87fdc9380)
+![構成図](https://github.com/user-attachments/assets/c8a8b900-3ca5-418a-a9b2-5dc5009cfe3c)
 
 ## API
 `/api/internal` はCloudflare Accessによるメールアドレス認証  
@@ -30,6 +30,28 @@ GPSデータを取得し、APIサーバに送信して保存します。
 ```
 POST /api/public/tours/{tour_id}
 ```
+
+**Request Body**
+```json
+{
+  "device_id": "rpi-zero-01",
+  "points": [
+    {
+      "client_point_id": 1,
+      "latitude": 35.6812,
+      "longitude": 139.7671,
+      "timestamp": "2024-08-15T10:23:45+09:00"
+    },
+    {
+      "client_point_id": 2,
+      "latitude": 35.6814,
+      "longitude": 139.7669,
+      "timestamp": "2024-08-15T10:23:50+09:00"
+    }
+  ]
+}
+```
+client_point_id: クライアント側で採番するID。データの重複送信を防ぐために使用。
 ### ツーリングデータ取得
 ```
 GET /api/internal/tours/{tour_id}
@@ -61,7 +83,8 @@ PATCH /api/internal/tours/{tour_id}
 - pytest
 ### フロントエンド
 - nginx
-- JavaScript
+- React
+- Vite
 - Leaflet (地図表示ライブラリ)
 ### デプロイ
 - VPS
@@ -71,10 +94,10 @@ PATCH /api/internal/tours/{tour_id}
 ## 工夫点
 - Raspberry Pi起動時にツーリングIDを作成し、ツーリングごとにデータを自動分類
 - インターネット接続が切断されても継続してGPSデータを蓄積し、データ欠損を防止
+- データの送信が連続して失敗したときは送信間隔を段階的に延長
 - Leafletを使用しインタラクティブな地図を表示
 - GPSデータの取得間隔や送信間隔などのパラメーターをsettingsファイルで一元管理
 - セキュリティのため、Cloudflare Tunnelを経由しないVPSへの直接アクセスはすべて禁止
-- データの送信が連続して失敗したときは送信間隔を段階的に延長
 - 全サービスをDocker Composeで管理し、コマンド一つで起動可能
 - pytestによる自動テスト
 
@@ -82,4 +105,3 @@ PATCH /api/internal/tours/{tour_id}
 - 複数ユーザー、複数デバイスの認証
 - 走行距離の計算機能
 - ツーリングの表示順の変更
-など・・・
