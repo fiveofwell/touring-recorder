@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom'
-import { TourMap } from './components/map';
+import { TourDistance, TourMap } from './components/map';
 import type { Point } from './components/types';
 
 const parsePoint = (raw: any): Point => ({
@@ -37,9 +37,14 @@ export const TourDetailPage = () => {
 	if (failed) return ( <p>エラーが発生しました</p> )
 
 	return (
-		<TourMap
-			points={points}
-		/>
+		<>
+			<TourDistance
+				points={points}
+			/>
+			<TourMap
+				points={points}
+			/>
+		</>
 	)
 
 }

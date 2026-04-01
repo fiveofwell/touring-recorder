@@ -68,3 +68,45 @@ export const TourMap = ({ points }: { points: Point[] }) => {
 		</MapContainer>
 	)
 }
+
+const calculateDistance = (point1: Point, point2: Point) => {
+	const a = 6378137;
+	const e = 0.00669438;
+
+	const lat1Rad = point1.latitude * Math.PI / 180;
+	const lon1Rad = point1.longitude * Math.PI / 180;
+	const lat2Rad = point2.latitude * Math.PI / 180;
+	const lon2Rad = point2.longitude * Math.PI / 180;
+
+	const deltaPhi = lat1Rad - lat2Rad;
+	const deltaLambda = lon1Rad - lon2Rad;
+	const phi = (lat1Rad + lat2Rad) / 2
+
+	const M = a * (1 - e) / Math.pow((1 - e * Math.pow(Math.sin(phi), 2)), 3 / 2);
+
+	const N = a / Math.sqrt(1 - e * Math.pow(Math.sin(phi), 2))
+
+	const d = Math.sqrt(Math.pow(M * deltaPhi, 2) + Math.pow(N * Math.cos(phi) * deltaLambda, 2));
+
+	return d;
+}
+
+const calculateTotalDistance = (points: Point[]): number => {
+	let distance = 0;
+
+	for (let i = 1; i < points.length; i++){
+		distance += calculateDistance(points[i - 1], points[i]);
+	}
+
+	return distance;
+}
+
+export const TourDistance = ({ points }: { points: Point[] }) => {
+	if (points.length === 0) return null;
+
+	const distance = calculateTotalDistance(points);
+	
+	return (
+		<p>走行距離: 約{(distance / 1000).toFixed(2)}km</p>
+	)
+}
