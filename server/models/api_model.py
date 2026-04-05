@@ -21,3 +21,10 @@ class TourInDB(SQLModel, table=True):
     device_id: str
     started_at: datetime = Field(index=True)
     last_seen_at: datetime
+
+
+class UserInDB(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str = Field(unique=True, index=True)
+    hashed_password: str
+    disabled: bool = Field(default=False)

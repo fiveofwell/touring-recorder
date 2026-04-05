@@ -1,7 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
-
 from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate
 from db import get_session
 from services import api_service

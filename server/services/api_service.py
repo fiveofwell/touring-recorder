@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from models.api_model import PointInDB, TourInDB
 from schemas.api_schema import Point, PointsResponse, PointsPost, TourResponse
-from services.exceptions import TourNotFound
+from exceptions import TourNotFound
 from repositories import api_repository
 
 def get_points(tour_id: str, session: Session) -> PointsResponse:

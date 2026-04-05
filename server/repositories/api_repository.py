@@ -2,7 +2,7 @@ from typing import List
 from sqlmodel import select, delete, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
-from models.api_model import PointInDB, TourInDB
+from models.api_model import PointInDB, TourInDB, UserInDB
 
 def get_tour(tour_id: str, session: Session) -> TourInDB | None:
     stmt = select(TourInDB).where(TourInDB.tour_id == tour_id)
@@ -43,3 +43,9 @@ def delete_points(tour_id: str, session: Session) -> None:
 def get_tours(session: Session) -> List[TourInDB]:
     stmt = select(TourInDB).order_by(TourInDB.started_at.desc())
     return session.exec(stmt).all()
+
+
+def get_user(username: str, session: Session) -> UserInDB:
+    stmt = select(UserInDB).where(UserInDB.username == username)
+    user_in_db = session.exec(stmt).first()
+    return user_in_db

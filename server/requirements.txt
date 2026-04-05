@@ -1,7 +1,9 @@
-fastapi
+fastapi[standard]
 uvicorn[standard]
 sqlmodel
 python-dotenv
 httpx
 pytest
 pytest-cov
+pyjwt
+pwdlib[argon2]
