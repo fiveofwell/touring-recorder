@@ -40,8 +40,8 @@ def delete_points(tour_id: str, session: Session) -> None:
     return None
     
 
-def get_tours(session: Session) -> List[TourInDB]:
-    stmt = select(TourInDB).order_by(TourInDB.started_at.desc())
+def get_tours(user_id: int, session: Session) -> List[TourInDB]:
+    stmt = select(TourInDB).where(TourInDB.user_id == user_id).order_by(TourInDB.started_at.desc())
     return session.exec(stmt).all()
 
 
@@ -49,3 +49,10 @@ def get_user(username: str, session: Session) -> UserInDB:
     stmt = select(UserInDB).where(UserInDB.username == username)
     user_in_db = session.exec(stmt).first()
     return user_in_db
+
+
+def add_user(user_in_db: UserInDB, session: Session) -> UserInDB:
+    session.add(user_in_db)
+    return user_in_db
+
+

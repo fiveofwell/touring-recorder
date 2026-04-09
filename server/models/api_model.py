@@ -21,6 +21,7 @@ class TourInDB(SQLModel, table=True):
     device_id: str
     started_at: datetime = Field(index=True)
     last_seen_at: datetime
+    user_id: int = Field(foreign_key="userindb.id", index=True)
 
 
 class UserInDB(SQLModel, table=True):

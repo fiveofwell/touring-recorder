@@ -8,6 +8,7 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 
 from schemas.api_schema import User, UserResponse, Token, TokenData
+from models.api_model import UserInDB
 from db import get_session
 from repositories import api_repository
 import settings
@@ -102,8 +103,10 @@ def get_current_user(
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
+
     except InvalidTokenError:
         raise credentials_exception
+
     user = api_repository.get_user(token_data.username, session)
     if user is None:
         raise credentials_exception
@@ -118,6 +121,22 @@ def get_current_user(
 
 
 def get_current_username(
-        user: User = Depends(get_current_user)
+    user: User = Depends(get_current_user)
 ) -> UserResponse:
     return UserResponse(username=user.username)
+
+
+def create_user(
+    username: str,
+    password: str,
+    session: Session = Depends(get_session)
+):
+    hashed_password = get_password_hash(password)
+    user_in_db = UserInDB(
+        username=username,
+        hashed_password=hashed_password,
+        disabled=False
+    )
+    created_user = api_repository.add_user(user_in_db, session)
+    session.commit()
+    return UserResponse(username=created_user.username)
