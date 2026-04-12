@@ -64,3 +64,9 @@ class TourResponse(BaseModel):
 
 class TourUpdate(BaseModel):
     tour_name: str
+
+
+class APIKeyData(BaseModel):
+    device_id: int
+    user_id: int
+

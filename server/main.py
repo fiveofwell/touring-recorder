@@ -8,7 +8,6 @@ from routers.public_api_router import router as public_api_router
 from routers.internal_api_router import router as internal_api_router
 import security
 from exceptions import TourNotFound, NotAuthorized
-from security import verify_api_key
 from schemas.api_schema import UserPost
 
 app = FastAPI(
@@ -17,7 +16,7 @@ app = FastAPI(
     openapi_url="/api/internal/openapi.json"
 )
 
-app.include_router(public_api_router, dependencies=[Depends(verify_api_key)])
+app.include_router(public_api_router)
 app.include_router(internal_api_router)
 
 @app.exception_handler(TourNotFound)

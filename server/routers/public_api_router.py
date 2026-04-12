@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from schemas.api_schema import PointsPost, SavePointsResult
+from schemas.api_schema import PointsPost, SavePointsResult, APIKeyData
 from db import get_session
 from services import api_service
+from security import authenticate_api_key
 
 router = APIRouter(prefix="/api/public", tags=["public api"])
 
@@ -11,9 +12,10 @@ router = APIRouter(prefix="/api/public", tags=["public api"])
 def save_points(
     tour_id: str,
     points: PointsPost,
+    api_key_data: APIKeyData = Depends(authenticate_api_key),
     session: Session = Depends(get_session)
 ):
-    api_service.save_points(tour_id, points, session)
+    api_service.save_points(tour_id, points, api_key_data.user_id, session)
     return SavePointsResult(ok=True)
 
 

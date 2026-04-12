@@ -11,33 +11,33 @@ router = APIRouter(
     tags=["internal api"],
 )
 
-@router.get("/tours/{tour_id}", response_model=PointsResponse)
+@router.get("/tours/{client_tour_id}", response_model=PointsResponse)
 def get_points(
-    tour_id: str,
+    client_tour_id: str,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    return api_service.get_points(tour_id, current_user.id, session)
+    return api_service.get_points(client_tour_id, current_user.id, session)
 
 
-@router.post("/tours/{tour_id}", response_model=SavePointsResult)
+@router.post("/tours/{client_tour_id}", response_model=SavePointsResult)
 def save_points(
-    tour_id: str,
+    client_tour_id: str,
     points: PointsPost,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    api_service.save_points(tour_id, points, current_user.id, session)
+    api_service.save_points(client_tour_id, points, current_user.id, session)
     return SavePointsResult(ok=True)
 
 
-@router.delete("/tours/{tour_id}", status_code=204)
+@router.delete("/tours/{client_tour_id}", status_code=204)
 def delete_tour(
-    tour_id: str,
+    client_tour_id: str,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    api_service.delete_tour(tour_id, current_user.id, session)
+    api_service.delete_tour(client_tour_id, current_user.id, session)
     return None
 
 
@@ -49,14 +49,14 @@ def get_tours(
     return api_service.get_tours(current_user.id, session)
 
 
-@router.patch("/tours/{tour_id}", response_model=TourResponse)
+@router.patch("/tours/{client_tour_id}", response_model=TourResponse)
 def update_tour_name(
-    tour_id: str,
+    client_tour_id: str,
     body: TourUpdate,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    return api_service.update_tour_name(tour_id, body.tour_name, current_user.id, session)
+    return api_service.update_tour_name(client_tour_id, body.tour_name, current_user.id, session)
 
 
 @router.get("/users/me/")

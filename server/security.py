@@ -6,8 +6,9 @@ from pwdlib import PasswordHash
 import jwt
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
+import hashlib
 
-from schemas.api_schema import User, UserResponse, Token, TokenData
+from schemas.api_schema import User, UserResponse, Token, TokenData, APIKeyData
 from models.api_model import UserInDB
 from db import get_session
 from repositories import api_repository
@@ -18,7 +19,7 @@ DUMMY_HASH = password_hash.hash("dummypassword")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
-api_key_header = APIKeyHeader(name='X-API-KEY', auto_error=False)
+api_key_header = APIKeyHeader(name='X-API-KEY')
 
 def unauthorized_exception(detail: str, bearer: bool = False) -> HTTPException:
     return HTTPException(
@@ -28,13 +29,33 @@ def unauthorized_exception(detail: str, bearer: bool = False) -> HTTPException:
     )
 
 
-def verify_api_key(api_key: str = Depends(api_key_header)):
-    if api_key == settings.X_API_KEY:
-        return api_key
-    else:
+def authenticate_api_key(
+        api_key: str = Depends(api_key_header),
+        session: Session = Depends(get_session)
+):
+    key_hash = hashlib.sha256(api_key.encode()).hexdigest()
+    api_key_in_db = api_repository.get_api_key(key_hash, session)
+
+    if api_key_in_db is None or api_key_in_db.disabled:
         raise unauthorized_exception(
             "Could not validate credentials"
         )
+
+    device_in_db = api_repository.get_device(api_key_in_db.device_id, session)
+
+    if device_in_db is None:
+        raise unauthorized_exception(
+            "Could not validate credentials"
+        )
+    user_id = device_in_db.user_id
+
+    api_key_in_db.last_used_at = datetime.now(timezone.utc)
+    session.commit()
+
+    return APIKeyData(
+        device_id=api_key_in_db.device_id,
+        user_id=user_id
+    )
 
 
 def verify_password(plain_password, hashed_password) -> bool:
