@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
-from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate, User
+from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate, User, UserResponse
 from db import get_session
 from services import api_service
 from security import get_current_user
@@ -57,3 +57,11 @@ def update_tour_name(
     session: Session = Depends(get_session)
 ):
     return api_service.update_tour_name(tour_id, body.tour_name, current_user.id, session)
+
+
+@router.get("/users/me/")
+def read_users_me(
+    current_user = Depends(get_current_user)
+) -> UserResponse:
+    return UserResponse(username=current_user.username)
+

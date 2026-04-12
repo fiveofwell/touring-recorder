@@ -8,8 +8,8 @@ from routers.public_api_router import router as public_api_router
 from routers.internal_api_router import router as internal_api_router
 import security
 from exceptions import TourNotFound, NotAuthorized
-from security import verify_api_key, get_current_username
-from schemas.api_schema import User, UserResponse, UserPost
+from security import verify_api_key
+from schemas.api_schema import UserPost
 
 app = FastAPI(
     docs_url="/api/internal/docs",
@@ -29,6 +29,7 @@ async def tour_not_found_handler(
         status_code=404,
         content={"detail": "Tour not found"}
     )
+
 
 @app.exception_handler(NotAuthorized)
 async def not_authorized_handler(
@@ -59,15 +60,8 @@ def login(
     return security.login(form_data.username, form_data.password, session)
 
 
-@app.get("/users/me/")
-def read_users_me(
-    current_user_name = Depends(get_current_username)
-) -> UserResponse:
-    return current_user_name
-
 @app.post("/users")
 def create_user(
-    new_user: UserPost,
-    session: Session = Depends(get_session)
+    new_user: UserPost
 ):
-    return security.create_user(new_user.username, new_user.password, session)
+    return security.create_user(new_user.username, new_user.password)
