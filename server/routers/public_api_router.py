@@ -15,7 +15,7 @@ def save_points(
     api_key_data: APIKeyData = Depends(authenticate_api_key),
     session: Session = Depends(get_session)
 ):
-    api_service.save_points(tour_id, points, api_key_data.user_id, session)
+    api_service.save_points(tour_id, points, api_key_data.device_id, api_key_data.user_id, session)
     return SavePointsResult(ok=True)
 
 

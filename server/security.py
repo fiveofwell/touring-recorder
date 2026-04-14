@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.api_key import APIKeyHeader
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session
 from pwdlib import PasswordHash
 import jwt
@@ -150,7 +151,7 @@ def get_current_username(
 def create_user(
     username: str,
     password: str,
-    session: Session = Depends(get_session)
+    session: Session
 ):
     hashed_password = get_password_hash(password)
     user_in_db = UserInDB(
@@ -158,6 +159,16 @@ def create_user(
         hashed_password=hashed_password,
         disabled=False
     )
-    created_user = api_repository.add_user(user_in_db, session)
-    session.commit()
-    return UserResponse(username=created_user.username)
+    api_repository.add_user(user_in_db, session)
+
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="username already exists"
+        )
+
+    return UserResponse(username=user_in_db.username)
+

@@ -33,18 +33,16 @@ class Point(BaseModel):
     client_point_id: int
     latitude: float
     longitude: float
-    timestamp: datetime
+    recorded_at: datetime
 
 
 class PointsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    device_id: str
     points: List[Point]
 
 
 class PointsPost(BaseModel):
-    device_id: str
     points: List[Point]
 
 
@@ -55,11 +53,11 @@ class SavePointsResult(BaseModel):
 class TourResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    tour_id: str
+    client_tour_id: str
     tour_name: str
-    device_id: str
-    started_at: datetime
-    last_seen_at: datetime
+    device_id: str | None = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class TourUpdate(BaseModel):

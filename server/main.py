@@ -61,6 +61,7 @@ def login(
 
 @app.post("/users")
 def create_user(
-    new_user: UserPost
+    new_user: UserPost,
+    session: Session = Depends(get_session)
 ):
-    return security.create_user(new_user.username, new_user.password)
+    return security.create_user(new_user.username, new_user.password, session)

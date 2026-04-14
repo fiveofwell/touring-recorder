@@ -9,7 +9,7 @@ class PointInDB(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     tour_id: int = Field(foreign_key="tourindb.id")
-    client_point_id: str 
+    client_point_id: int
     latitude: float
     longitude: float
     recorded_at: datetime

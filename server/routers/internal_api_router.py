@@ -27,7 +27,8 @@ def save_points(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    api_service.save_points(client_tour_id, points, current_user.id, session)
+    # ダミー登録なのでdevice_idはNone
+    api_service.save_points(client_tour_id, points, None, current_user.id, session)
     return SavePointsResult(ok=True)
 
 
@@ -59,9 +60,8 @@ def update_tour_name(
     return api_service.update_tour_name(client_tour_id, body.tour_name, current_user.id, session)
 
 
-@router.get("/users/me/")
+@router.get("/users/me/", response_model=UserResponse)
 def read_users_me(
     current_user = Depends(get_current_user)
-) -> UserResponse:
+):
     return UserResponse(username=current_user.username)
-

@@ -4,14 +4,14 @@ import sqlalchemy.dialects.sqlite as sqlite
 
 from models.api_model import PointInDB, TourInDB, UserInDB, DeviceInDB, APIKeyInDB
 
-def get_tour(tour_id: str, session: Session) -> TourInDB | None:
-    stmt = select(TourInDB).where(TourInDB.tour_id == tour_id)
+def get_tour_by_client_tour_id(client_tour_id: str, session: Session) -> TourInDB | None:
+    stmt = select(TourInDB).where(TourInDB.client_tour_id == client_tour_id)
     tour_in_db = session.exec(stmt).first()
     return tour_in_db
 
 
 def get_points(tour_id: str, session: Session) -> List[PointInDB]:
-    stmt = select(PointInDB).where(PointInDB.tour_id == tour_id).order_by(PointInDB.timestamp.desc())
+    stmt = select(PointInDB).where(PointInDB.tour_id == tour_id).order_by(PointInDB.recorded_at.desc())
     return session.exec(stmt).all()
 
 
@@ -26,18 +26,18 @@ def upsert_points(points: List[PointInDB], session: Session) -> None:
     session.exec(stmt)
 
 
-def delete_tour(tour_id: str, session: Session) -> None:
-    stmt = delete(TourInDB).where(TourInDB.tour_id == tour_id)
+def delete_tour(tour_id: int, session: Session) -> None:
+    stmt = delete(TourInDB).where(TourInDB.id == tour_id)
     session.exec(stmt)
 
 
-def delete_points(tour_id: str, session: Session) -> None:
+def delete_points(tour_id: int, session: Session) -> None:
     stmt = delete(PointInDB).where(PointInDB.tour_id == tour_id)
     session.exec(stmt)
     
 
 def get_tours(user_id: int, session: Session) -> List[TourInDB]:
-    stmt = select(TourInDB).where(TourInDB.user_id == user_id).order_by(TourInDB.started_at.desc())
+    stmt = select(TourInDB).where(TourInDB.user_id == user_id).order_by(TourInDB.created_at.desc())
     return session.exec(stmt).all()
 
 
@@ -46,9 +46,8 @@ def get_user(username: str, session: Session) -> UserInDB | None:
     return session.exec(stmt).first()
 
 
-def add_user(user_in_db: UserInDB, session: Session) -> UserInDB:
+def add_user(user_in_db: UserInDB, session: Session) -> None:
     session.add(user_in_db)
-    return user_in_db
 
 
 def get_api_key(key_hash: str, session: Session) -> APIKeyInDB | None:
