@@ -55,7 +55,7 @@ class TourResponse(BaseModel):
 
     client_tour_id: str
     tour_name: str
-    device_id: str | None = None
+    device_name: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -67,4 +67,30 @@ class TourUpdate(BaseModel):
 class APIKeyData(BaseModel):
     device_id: int
     user_id: int
+
+
+class APIKeyResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    key_prefix: str
+    created_at: datetime
+    last_used_at: datetime | None = None
+
+
+class DeviceFirstResponse(BaseModel):
+    device_id: str
+    device_name: str
+    api_key: str
+    
+
+class DeviceResponse(BaseModel):
+    device_id: str
+    device_name: str
+    api_key: APIKeyResponse
+
+
+class DevicePost(BaseModel):
+    device_name: str
+
+
 

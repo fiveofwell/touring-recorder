@@ -36,18 +36,18 @@ class UserInDB(SQLModel, table=True):
 
 class DeviceInDB(SQLModel, table=True):
     __table_args__=(
-        UniqueConstraint("user_id", "name", name="unique_user_id_device_name"),
+        UniqueConstraint("user_id", "device_name", name="unique_user_id_device_name"),
     )
 
     id: int | None = Field(default=None, primary_key=True)
+    device_id: str = Field(index=True)
     user_id: int = Field(foreign_key="userindb.id")
-    name: str
+    device_name: str
 
 
 class APIKeyInDB(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     device_id: int = Field(foreign_key="deviceindb.id")
-    name: str
     key_hash: str = Field(unique=True, index=True)
     key_prefix: str
     created_at: datetime

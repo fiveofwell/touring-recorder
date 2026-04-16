@@ -8,6 +8,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 import hashlib
+import secrets
 
 from schemas.api_schema import User, UserResponse, Token, TokenData, APIKeyData
 from models.api_model import UserInDB
@@ -43,11 +44,6 @@ def authenticate_api_key(
         )
 
     device_in_db = api_repository.get_device(api_key_in_db.device_id, session)
-
-    if device_in_db is None:
-        raise unauthorized_exception(
-            "Could not validate credentials"
-        )
     user_id = device_in_db.user_id
 
     api_key_in_db.last_used_at = datetime.now(timezone.utc)
@@ -142,12 +138,6 @@ def get_current_user(
     return User.model_validate(user)
 
 
-def get_current_username(
-    user: User = Depends(get_current_user)
-) -> UserResponse:
-    return UserResponse(username=user.username)
-
-
 def create_user(
     username: str,
     password: str,
@@ -167,8 +157,20 @@ def create_user(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="username already exists"
+            detail="User already exists"
         )
 
     return UserResponse(username=user_in_db.username)
 
+
+def generate_api_key() -> tuple[str, str, str]:
+    """
+    Returns:
+        raw_key:    平文フルキー
+        key_prefix: 一覧表示用プレフィックス
+        key_hash:   DB保存用ハッシュ
+    """
+    raw_key = "sk-tr-" + secrets.token_urlsafe(32)
+    key_prefix = raw_key[:16] + "****"
+    key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+    return raw_key, key_prefix, key_hash

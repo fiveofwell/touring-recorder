@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from sqlmodel import select, delete, Session
 import sqlalchemy.dialects.sqlite as sqlite
 
@@ -56,5 +56,38 @@ def get_api_key(key_hash: str, session: Session) -> APIKeyInDB | None:
 
 
 def get_device(device_id: str, session: Session) -> DeviceInDB | None:
-    stmt = select(DeviceInDB).where(DeviceInDB.device_id == device_id)
+    stmt = select(DeviceInDB).where(DeviceInDB.id == device_id)
     return session.exec(stmt).first()
+
+
+def get_device_by_device_id(device_id: str, user_id: int, session: Session) -> DeviceInDB | None:
+    stmt = select(DeviceInDB).where(DeviceInDB.device_id == device_id and DeviceInDB.user_id == user_id)
+    return session.exec(stmt).first()
+
+
+def get_device_by_device_name(device_name: str, user_id: int, session: Session) -> DeviceInDB | None:
+    stmt = select(DeviceInDB).where(DeviceInDB.device_name == device_name and DeviceInDB.user_id == user_id)
+    return session.exec(stmt).first()
+
+
+def get_devices(user_id: int, session: Session) -> List[Tuple[DeviceInDB, APIKeyInDB]]:
+    stmt = select(DeviceInDB, APIKeyInDB).join(APIKeyInDB, DeviceInDB.id == APIKeyInDB.device_id).where(DeviceInDB.user_id == user_id)
+    return session.exec(stmt).all()
+
+
+def add_device(device_in_db: DeviceInDB, session: Session) -> None:
+    session.add(device_in_db)
+
+
+def add_api_key(api_key_in_db: APIKeyInDB, session: Session) -> None:
+    session.add(api_key_in_db)
+
+
+def delete_device(device_id: int, session: Session) -> None:
+    stmt = delete(DeviceInDB).where(DeviceInDB.id == device_id)
+    session.exec(stmt)
+
+
+def delete_api_key(device_id: int, session: Session) -> None:
+    stmt = delete(APIKeyInDB).where(APIKeyInDB.device_id == device_id)
+    session.exec(stmt)

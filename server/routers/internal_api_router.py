@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
-from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate, User, UserResponse
+from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, TourResponse, TourUpdate, User, UserResponse, DeviceResponse, DeviceFirstResponse, DevicePost
 from db import get_session
 from services import api_service
 from security import get_current_user
@@ -11,7 +11,7 @@ router = APIRouter(
     tags=["internal api"],
 )
 
-@router.get("/tours/{client_tour_id}", response_model=PointsResponse)
+@router.get("/tours/{client_tour_id}/points", response_model=PointsResponse)
 def get_points(
     client_tour_id: str,
     current_user: User = Depends(get_current_user),
@@ -20,7 +20,7 @@ def get_points(
     return api_service.get_points(client_tour_id, current_user.id, session)
 
 
-@router.post("/tours/{client_tour_id}", response_model=SavePointsResult)
+@router.post("/tours/{client_tour_id}/points", response_model=SavePointsResult)
 def save_points(
     client_tour_id: str,
     points: PointsPost,
@@ -60,8 +60,35 @@ def update_tour_name(
     return api_service.update_tour_name(client_tour_id, body.tour_name, current_user.id, session)
 
 
-@router.get("/users/me/", response_model=UserResponse)
+@router.get("/users/me", response_model=UserResponse)
 def read_users_me(
     current_user = Depends(get_current_user)
 ):
     return UserResponse(username=current_user.username)
+
+
+@router.get("/devices", response_model=List[DeviceResponse])
+def get_devices(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    return api_service.get_devices(current_user.id, session)
+
+
+@router.post("/devices", response_model=DeviceFirstResponse)
+def register_device(
+    body: DevicePost,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    return api_service.register_device(body.device_name, current_user.id, session)
+
+
+@router.delete("/devices/{device_id}", status_code=204)
+def delete_device(
+    device_id: str,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    api_service.delete_device(device_id, current_user.id, session)
+    return None
