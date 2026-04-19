@@ -9,12 +9,15 @@ from db import get_session
 from fastapi.testclient import TestClient
 from main import app
 from sqlmodel import SQLModel, create_engine, Session
+from sqlalchemy.pool import StaticPool
 
 
 @pytest.fixture
 def client():
     engine = create_engine(
-        "sqlite:///./data/test_app.db"
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
     )
     SQLModel.metadata.create_all(engine)
 
