@@ -19,7 +19,10 @@ jobs:
 
       - name: Create .env file
         working-directory: ./server
-        run: echo "X_API_KEY=${{ secrets.X_API_KEY }}" > .env
+        run: |
+          echo "ALGORITHM=${{ secrets.ALGORITHM }}" > .env
+          echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
 
       - name: Install dependencies
         working-directory: ./server
