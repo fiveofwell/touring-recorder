@@ -1,106 +1,53 @@
-import uuid
-from tests.test_utils import create_test_tour, create_invalid_test_tour, create_test_tour_with_apikey
-from schemas.api_schema import TourUpdate
-import settings
+import test_utils as util
 
 def test_root(client):
     response = client.get("/")
-    assert response.status_code == 200
+    assert response.status_code == 200, response.json()
     assert response.json() == {"message": "Hello World"}
 
 
-def test_get_tours(client):
-    response = client.get("/api/internal/tours")
-    assert response.status_code == 200
+def test_create_user(client):
+    test_username = "test_user"
+    test_password = "secret"
+    response = util.create_test_user(client, test_username, test_password)
+    assert response.status_code == 200, response.json()
+    assert response.json()["username"] == test_username
 
 
-def test_get_tours_detail(client):
-    create_test_tour(client, str(uuid.uuid4()))
-    create_test_tour(client, str(uuid.uuid4()))
-    create_test_tour(client, str(uuid.uuid4()))
+def test_create_user_already_exist(client):
+    test_username = "test_user"
+    test_password = "secret"
+    response = util.create_test_user(client, test_username, test_password)
 
-    response = client.get("/api/internal/tours")
-    tours = response.json()
-
-    for tour in tours:
-        tour_id = tour["tour_id"]
-        tour_response = client.get(f"/api/internal/tours/{tour_id}")
-        assert tour_response.status_code == 200
-        assert len(tour_response.json()["points"]) == 1
+    response = util.create_test_user(client, test_username, test_password)
+    assert response.status_code == 409, response.json()
+    assert response.json()["detail"] == "User already exists"
 
 
-def test_get_tour_not_found(client):
-    tour_id = str(uuid.uuid4())
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Tour not found"
+def test_token_generation(client):
+    test_username = "test_user"
+    test_password = "secret"
+    response = util.create_test_user(client, test_username, test_password)
+    assert response.status_code == 200, response.json()
+
+    response = util.get_token(client, test_username, test_password)
+    assert response.status_code == 200, response.json()
+
+    data = response.json()
+    assert data["access_token"]
+    assert data["token_type"] == "bearer"
 
 
-def test_post_points(client):
-    tour_id = str(uuid.uuid4())
-    response = create_test_tour(client, tour_id)
-    assert response.status_code == 200
-    assert response.json() == {"ok": True}
+def test_token_generation_incorrect_username_or_password(client):
+    test_username = "test_user"
+    test_password = "secret"
+    response = util.create_test_user(client, test_username, test_password)
+    assert response.status_code == 200, response.json()
 
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 200
-    assert len(response.json()["points"]) == 1
+    response = util.get_token(client, "user", test_password)
+    assert response.status_code == 401, response.json()
+    assert response.json()["detail"] == "Incorrect username or password" 
 
-
-def test_post_invalid_points(client):
-    tour_id = str(uuid.uuid4())
-    response = create_invalid_test_tour(client, tour_id)
-    assert response.status_code == 422
-
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 404
-
-
-def test_delete_tour(client):
-    tour_id = str(uuid.uuid4())
-    create_test_tour(client, tour_id)
-    response = client.delete(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 204
-
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 404 
-
-
-def test_delete_tour_not_found(client):
-    tour_id = str(uuid.uuid4())
-    response = client.delete(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 404
-
-
-def test_public_post(client):
-    tour_id = str(uuid.uuid4())
-    response = create_test_tour_with_apikey(client, tour_id, settings.X_API_KEY)
-    assert response.status_code == 200
-
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 200
-    assert len(response.json()["points"]) == 1
-
-
-def test_public_post_invalid_apikey(client):
-    tour_id = str(uuid.uuid4())
-    response = create_test_tour_with_apikey(client, tour_id, str(uuid.uuid4()))
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Could not validate credentials"
-
-    response = client.get(f"/api/internal/tours/{tour_id}")
-    assert response.status_code == 404 
-
-
-def test_tour_name_change(client):
-    tour_id = str(uuid.uuid4())
-    create_test_tour(client, tour_id)
-
-    tour_name = str(uuid.uuid4())
-    body = TourUpdate(
-            tour_name = tour_name
-    )
-
-    response = client.patch(f"/api/internal/tours/{tour_id}", json=body.model_dump(mode="json"))
-    assert response.status_code == 200
-    assert response.json()["tour_name"] == tour_name
+    response = util.get_token(client, test_username, "xxx")
+    assert response.status_code == 401, response.json()
+    assert response.json()["detail"] == "Incorrect username or password" 
