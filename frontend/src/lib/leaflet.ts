@@ -7,8 +7,8 @@ export const setupLeafletIcons = () => {
 	delete (L.Icon.Default.prototype as any)._getIconUrl;
 
 	L.Icon.Default.mergeOptions({
-  	iconRetinaUrl: markerIcon2x,
-  	iconUrl: markerIcon,
-  	shadowUrl: markerShadow
+		iconRetinaUrl: markerIcon2x,
+		iconUrl: markerIcon,
+		shadowUrl: markerShadow,
 	});
 };
