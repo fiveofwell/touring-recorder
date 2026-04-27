@@ -11,6 +11,7 @@ import {
 	Routes,
 } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
+import { Header } from './components/Header';
 
 const RequireAuth = () => {
 	const token = localStorage.getItem('access_token');
@@ -23,23 +24,32 @@ const RequireAuth = () => {
 	return <Outlet />;
 };
 
+const HeaderLayout = () => (
+	<>
+		<Header />
+		<Outlet />
+	</>
+);
+
 const AppRouter = () => {
 	return (
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<LoginPage />} />
 				<Route element={<RequireAuth />}>
-					<Route path="/tours" element={<TourListPage />} />
-					<Route
-						path="/tours/:client_tour_id/points"
-						element={<TourDetailPage />}
-					/>
-					<Route
-						path="/tours/:client_tour_id/edit"
-						element={<TourNameChangePage />}
-					/>
-					<Route path="/devices" element={<DeviceManagementPage />} />
-					<Route path="/devices/new" element={<DeviceCreatePage />} />
+					<Route element={<HeaderLayout />}>
+						<Route path="/tours" element={<TourListPage />} />
+						<Route
+							path="/tours/:client_tour_id/points"
+							element={<TourDetailPage />}
+						/>
+						<Route
+							path="/tours/:client_tour_id/edit"
+							element={<TourNameChangePage />}
+						/>
+						<Route path="/devices" element={<DeviceManagementPage />} />
+						<Route path="/devices/new" element={<DeviceCreatePage />} />
+					</Route>
 				</Route>
 			</Routes>
 		</BrowserRouter>
