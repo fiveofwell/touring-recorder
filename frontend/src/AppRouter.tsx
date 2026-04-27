@@ -1,6 +1,8 @@
 import { TourListPage } from './pages/TourListPage';
 import { TourDetailPage } from './pages/TourDetailPage';
 import { TourNameChangePage } from './pages/TourNameChangePage';
+import { DeviceManagementPage } from './pages/DeviceManagementPage';
+import { DeviceCreatePage } from './pages/DeviceCreatePage';
 import {
 	BrowserRouter,
 	Navigate,
@@ -36,6 +38,8 @@ const AppRouter = () => {
 						path="/tours/:client_tour_id/edit"
 						element={<TourNameChangePage />}
 					/>
+					<Route path="/devices" element={<DeviceManagementPage />} />
+					<Route path="/devices/new" element={<DeviceCreatePage />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>

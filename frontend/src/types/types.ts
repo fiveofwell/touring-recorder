@@ -20,3 +20,21 @@ export type TourLinkProps = {
 export type TourDetailProps = Tour & {
 	onDelete: (client_tour_id: string) => void;
 };
+
+type ApiKey = {
+	key_prefix: string;
+	created_at: Date;
+	last_used_at: Date | null;
+};
+
+export type Device = {
+	device_id: string;
+	device_name: string;
+	api_key: ApiKey;
+};
+
+export type NewDevice = {
+	device_id: string;
+	device_name: string;
+	api_key: string;
+};
