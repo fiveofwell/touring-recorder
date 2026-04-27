@@ -4,8 +4,8 @@ import type { Tour } from '../types/types';
 
 const parseTour = (raw: any): Tour => ({
 	...raw,
-	started_at: new Date(raw.started_at + 'Z'),
-	last_seen_at: new Date(raw.last_seen_at + 'Z'),
+	created_at: new Date(raw.created_at + 'Z'),
+	updated_at: new Date(raw.updated_at + 'Z'),
 });
 
 export const TourListPage = () => {
@@ -13,35 +13,43 @@ export const TourListPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [failed, setFailed] = useState(false);
 
-	const handleDelete = (tour_id: string) => {
-		setTours((prev) => prev.filter((t) => t.tour_id !== tour_id));
+	const handleDelete = (client_tour_id: string) => {
+		setTours((prev) => prev.filter((t) => t.client_tour_id !== client_tour_id));
 	};
 
 	useEffect(() => {
-		fetch('/api/internal/tours')
-			.then((response) => {
+		const fetchTours = async () => {
+			try {
+				const response = await fetch('/api/internal/tours', {
+					headers: {
+						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+					},
+				});
 				if (!response.ok) {
 					throw new Error('APIエラー');
 				}
-				return response.json();
-			})
-			.then((data) => {
+				const data = await response.json();
 				setTours(data.map((t: any) => parseTour(t)));
-			})
-			.catch((error) => {
+			} catch (error) {
 				console.error(error);
 				setFailed(true);
-			})
-			.finally(() => setLoading(false));
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchTours();
 	}, []);
 
 	if (loading) return <p>Loading...</p>;
 	if (failed) return <p>エラーが発生しました</p>;
 	return (
-		<ul>
-			{tours.map((t) => (
-				<TourDetail key={t.tour_id} {...t} onDelete={handleDelete} />
-			))}
-		</ul>
+		<>
+			<h1>ツーリング一覧</h1>
+			<ul>
+				{tours.map((t) => (
+					<TourDetail key={t.client_tour_id} {...t} onDelete={handleDelete} />
+				))}
+			</ul>
+		</>
 	);
 };

@@ -53,7 +53,7 @@ const SetMarkers = ({ points }: { points: Point[] }) => {
 	);
 };
 
-export const TourMap = ({ points }: { points: Point[] }) => {
+export const MapView = ({ points }: { points: Point[] }) => {
 	const positions: [number, number][] = points.map((p) => [
 		p.latitude,
 		p.longitude,

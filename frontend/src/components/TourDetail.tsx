@@ -1,18 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
 import type { TourLinkProps, TourDetailProps } from '../types/types';
 
-export const TourLink = ({ id, name }: TourLinkProps) => (
-	<Link to={`/tours/${id}`} className="tour-detail">
-		{name}
+export const TourLink = ({ client_tour_id, tour_name }: TourLinkProps) => (
+	<Link to={`/tours/${client_tour_id}/points`} className="tour-detail">
+		{tour_name}
 	</Link>
 );
 
 export const TourDetail = ({
-	tour_id,
+	client_tour_id,
 	tour_name,
-	device_id,
-	started_at,
-	last_seen_at,
+	device_name,
+	created_at,
+	updated_at,
 	onDelete,
 }: TourDetailProps) => {
 	const navigate = useNavigate();
@@ -23,13 +23,13 @@ export const TourDetail = ({
 		}
 
 		try {
-			const response = await fetch(`/api/internal/tours/${tour_id}`, {
+			const response = await fetch(`/api/internal/tours/${client_tour_id}`, {
 				method: 'DELETE',
 			});
 			if (!response.ok) {
 				throw new Error('APIエラー');
 			}
-			onDelete(tour_id);
+			onDelete(client_tour_id);
 		} catch (error) {
 			console.error(error);
 			alert('削除に失敗しました');
@@ -38,13 +38,13 @@ export const TourDetail = ({
 
 	return (
 		<li>
-			<TourLink id={tour_id} name={tour_name} />
-			<p>Tour id: {tour_id}</p>
-			<p>Device id: {device_id}</p>
-			<p>Started at: {started_at.toLocaleString('ja-JP')}</p>
-			<p>Last seen at: {last_seen_at.toLocaleString('ja-JP')}</p>
+			<TourLink client_tour_id={client_tour_id} tour_name={tour_name} />
+			<p>Client tour id: {client_tour_id}</p>
+			{device_name && <p>Device name: {device_name}</p>}
+			<p>Created at: {created_at.toLocaleString('ja-JP')}</p>
+			<p>Updated at: {updated_at.toLocaleString('ja-JP')}</p>
 			<button onClick={deleteTour}>ツーリングを削除する</button>
-			<button onClick={() => navigate(`/tours/${tour_id}/name-change`)}>
+			<button onClick={() => navigate(`/tours/${client_tour_id}/edit`)}>
 				ツーリングの名前を変更する
 			</button>
 			<hr />

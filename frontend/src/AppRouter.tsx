@@ -1,18 +1,42 @@
 import { TourListPage } from './pages/TourListPage';
 import { TourDetailPage } from './pages/TourDetailPage';
 import { TourNameChangePage } from './pages/TourNameChangePage';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {
+	BrowserRouter,
+	Navigate,
+	Outlet,
+	Route,
+	Routes,
+} from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+
+const RequireAuth = () => {
+	const token = localStorage.getItem('access_token');
+
+	if (!token) {
+		alert('再度ログインしてください');
+		return <Navigate to="/" replace />;
+	}
+
+	return <Outlet />;
+};
 
 const AppRouter = () => {
 	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/" element={<TourListPage />} />
-				<Route path="/tours/:tour_id" element={<TourDetailPage />} />
-				<Route
-					path="/tours/:tour_id/name-change"
-					element={<TourNameChangePage />}
-				/>
+				<Route path="/" element={<LoginPage />} />
+				<Route element={<RequireAuth />}>
+					<Route path="/tours" element={<TourListPage />} />
+					<Route
+						path="/tours/:client_tour_id/points"
+						element={<TourDetailPage />}
+					/>
+					<Route
+						path="/tours/:client_tour_id/edit"
+						element={<TourNameChangePage />}
+					/>
+				</Route>
 			</Routes>
 		</BrowserRouter>
 	);

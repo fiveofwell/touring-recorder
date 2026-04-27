@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { TourDistance, TourMap } from '../components/MapView';
+import { TourDistance, MapView } from '../components/MapView';
 import type { Point } from '../types/types';
 
 const parsePoint = (raw: any): Point => ({
@@ -9,28 +9,40 @@ const parsePoint = (raw: any): Point => ({
 });
 
 export const TourDetailPage = () => {
-	const { tour_id } = useParams<{ tour_id: string }>();
+	const { client_tour_id } = useParams<{ client_tour_id: string }>();
 
 	const [points, setPoints] = useState<Point[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [failed, setFailed] = useState(false);
 
 	useEffect(() => {
-		fetch(`/api/internal/tours/${tour_id}`)
-			.then((response) => {
+		const fetchData = async () => {
+			try {
+				const response = await fetch(
+					`/api/internal/tours/${client_tour_id}/points`,
+					{
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+						},
+					},
+				);
+
 				if (!response.ok) {
 					throw new Error('APIエラー');
 				}
-				return response.json();
-			})
-			.then((data) => {
+
+				const data = await response.json();
 				setPoints(data.points.map((p: any) => parsePoint(p)));
-			})
-			.catch((error) => {
+				setLoading(false);
+			} catch (error) {
 				console.error(error);
 				setFailed(true);
-			})
-			.finally(() => setLoading(false));
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
 	}, []);
 
 	if (loading) return <p>Loading...</p>;
@@ -39,7 +51,7 @@ export const TourDetailPage = () => {
 	return (
 		<>
 			<TourDistance points={points} />
-			<TourMap points={points} />
+			<MapView points={points} />
 		</>
 	);
 };

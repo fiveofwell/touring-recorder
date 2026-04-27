@@ -6,17 +6,17 @@ export type Point = {
 
 export type Tour = {
 	tour_name: string;
-	tour_id: string;
-	device_id: string;
-	started_at: Date;
-	last_seen_at: Date;
+	client_tour_id: string;
+	device_name: string;
+	created_at: Date;
+	updated_at: Date;
 };
 
 export type TourLinkProps = {
-	name: string;
-	id: string;
+	tour_name: string;
+	client_tour_id: string;
 };
 
 export type TourDetailProps = Tour & {
-	onDelete: (tour_id: string) => void;
+	onDelete: (client_tour_id: string) => void;
 };
