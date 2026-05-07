@@ -5,10 +5,12 @@ from schemas.api_schema import PointsResponse, PointsPost, SavePointsResult, Tou
 from db import get_session
 from services import api_service
 from security import get_current_user
+from rate_limit import rate_limit
 
 router = APIRouter(
     prefix="/api/internal",
     tags=["internal api"],
+    dependencies=[Depends(rate_limit(limit=100, window=60))]
 )
 
 @router.get("/tours/{client_tour_id}/points", response_model=PointsResponse)
