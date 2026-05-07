@@ -9,12 +9,14 @@ from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 import hashlib
 import secrets
+import redis
 
 from schemas.api_schema import User, UserResponse, Token, TokenData, APIKeyData
 from models.api_model import UserInDB
 from db import get_session
 from repositories import api_repository
 import settings
+from redis_client import get_redis_client
 
 password_hash = PasswordHash.recommended()
 DUMMY_HASH = password_hash.hash("dummypassword")
@@ -114,15 +116,36 @@ def login(
     return Token(access_token=access_token, token_type="bearer")
 
 
+def logout(
+    token: str,
+    client: redis.Redis
+):
+    # Redisにブラックリストとして保存
+    # ハッシュ化して保存し、キーを短縮
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+    blacklist_key = f"token_blacklist:{hashed_token}"
+    client.setex(
+        blacklist_key,
+        settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "blacklisted"
+    )
+    return None
+
+
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    redis_client: redis.Redis = Depends(get_redis_client)
 ):
     credentials_exception = unauthorized_exception(
         "Could not validate credentials",
         bearer=True
     )
     try:
+        hashed_token = hashlib.sha256(token.encode()).hexdigest()
+        if redis_client.get(f"token_blacklist:{hashed_token}"):
+            raise credentials_exception
+
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username = payload.get("sub")
         if username is None:

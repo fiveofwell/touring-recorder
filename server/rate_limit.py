@@ -1,14 +1,6 @@
 from fastapi import Depends, status, HTTPException, Request
 import redis
-
-def get_redis_client():
-    try:
-        client = redis.Redis(host='redis', decode_responses=True, socket_connect_timeout=5)
-        client.ping()
-        return client
-    except (redis.ConnectionError, redis.TimeoutError):
-        return None
-
+from redis_client import get_redis_client
 
 def get_client_ip(request: Request):
     # Cloudflareのプロキシの場合
@@ -36,20 +28,14 @@ def rate_limit(
 ):
     async def limiter(
         request: Request,
-        client: redis.Redis = Depends(get_redis_client)
+        redis_client: redis.Redis = Depends(get_redis_client)
     ):
-        if client is None:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Rate limit service unavailable",
-            )
-
         ip = get_client_ip(request)
         key = f"rate_limit:{ip}:{request.url.path}"
 
-        count = client.incr(key)
+        count = redis_client.incr(key)
         if count == 1:
-            client.expire(key, window)
+            redis_client.expire(key, window)
         if count > limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
