@@ -24,5 +24,3 @@ def test_get_user_invalid_token(client):
 
     assert response.status_code == 401, response.json()
     assert response.json()["detail"] == "Could not validate credentials"
-
-

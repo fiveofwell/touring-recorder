@@ -11,8 +11,27 @@ from sqlalchemy.pool import StaticPool
 
 import tests.test_utils as util
 from db import get_session
+from redis_client import get_redis_client
 from main import app
 
+class MockRedisClient:
+    def __init__(self) -> None:
+        self.store = {}  # シンプルな辞書を使用してキーと値を保存
+        pass
+
+    def incr(self, key):
+        value = self.store.get(key, 0) + 1
+        self.store[key] = value
+        return value
+
+    def expire(self, key, window):
+        pass  # 何もしない
+
+    def get(self, key):
+        return self.store.get(key)
+    
+    def setex(self, key, time, value):
+        self.store[key] = value  # キーと値のみ保存
 
 @pytest.fixture
 def client():
@@ -28,6 +47,14 @@ def client():
             yield session
 
     app.dependency_overrides[get_session] = override_get_session
+
+
+    mock_redis_client = MockRedisClient()
+    def override_get_redis_client():
+        # テスト用のモックRedisクライアントを返す(テストごとに状態をリセット)
+        return mock_redis_client
+
+    app.dependency_overrides[get_redis_client] = override_get_redis_client
     yield TestClient(app)
     app.dependency_overrides.clear()
 

@@ -51,3 +51,12 @@ def test_token_generation_incorrect_username_or_password(client):
     response = util.get_token(client, test_username, "xxx")
     assert response.status_code == 401, response.json()
     assert response.json()["detail"] == "Incorrect username or password" 
+
+
+def test_get_user_after_logout(authenticated_client):
+    response = authenticated_client.delete("/token")
+    assert response.status_code == 204, response.json()
+
+    response = authenticated_client.get("/api/internal/users/me")
+    assert response.status_code == 401, response.json()
+    assert response.json()["detail"] == "Could not validate credentials"
