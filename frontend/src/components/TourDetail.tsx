@@ -25,6 +25,9 @@ export const TourDetail = ({
 		try {
 			const response = await fetch(`/api/internal/tours/${client_tour_id}`, {
 				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+				},
 			});
 			if (!response.ok) {
 				throw new Error('APIエラー');
