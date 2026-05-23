@@ -1,4 +1,5 @@
 import type { Device } from '../types/types';
+import { apiFetch } from '../lib/api';
 
 export const DeviceListItem = ({
 	device,
@@ -13,22 +14,13 @@ export const DeviceListItem = ({
 		}
 
 		try {
-			const response = await fetch(
-				`/api/internal/devices/${device.device_id}`,
-				{
-					method: 'DELETE',
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-					},
-				},
-			);
-			if (!response.ok) {
-				throw new Error('APIエラー');
-			}
+			await apiFetch(`/api/internal/devices/${device.device_id}`, {
+				method: 'DELETE',
+			});
 			onDelete(device.device_id);
 		} catch (error) {
-			console.error(error);
-			alert('削除に失敗しました');
+			console.error('デバイスの削除に失敗しました: ', error);
+			alert('削除に失敗しました。再度お試しください。');
 		}
 	};
 

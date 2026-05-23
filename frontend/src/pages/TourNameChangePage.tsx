@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../lib/api';
 
 export const TourNameChangePage = () => {
 	const navigate = useNavigate();
@@ -14,22 +15,15 @@ export const TourNameChangePage = () => {
 			return;
 		}
 		try {
-			const response = await fetch(`/api/internal/tours/${client_tour_id}`, {
+			await apiFetch(`/api/internal/tours/${client_tour_id}`, {
 				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-				},
 				body: JSON.stringify({
 					tour_name: normalizedTourName,
 				}),
 			});
-			if (!response.ok) {
-				throw new Error('APIエラー');
-			}
 			navigate('/tours');
 		} catch (error) {
-			console.error(error);
+			console.error('ツーリング名の変更に失敗しました:', error);
 			alert('変更に失敗しました。再度お試しください');
 		}
 	};

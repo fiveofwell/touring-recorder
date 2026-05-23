@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TourDetail } from '../components/TourDetail';
 import type { Tour } from '../types/types';
+import { apiFetch } from '../lib/api';
 
 const parseTour = (raw: any): Tour => ({
 	...raw,
@@ -20,18 +21,12 @@ export const TourListPage = () => {
 	useEffect(() => {
 		const fetchTours = async () => {
 			try {
-				const response = await fetch('/api/internal/tours', {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-					},
-				});
-				if (!response.ok) {
-					throw new Error('APIエラー');
-				}
+				const response = await apiFetch('/api/internal/tours');
+
 				const data = await response.json();
 				setTours(data.map((t: any) => parseTour(t)));
 			} catch (error) {
-				console.error(error);
+				console.error('ツーリングの取得に失敗しました:', error);
 				setFailed(true);
 			} finally {
 				setLoading(false);

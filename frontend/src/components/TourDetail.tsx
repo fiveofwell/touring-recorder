@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import type { TourLinkProps, TourDetailProps } from '../types/types';
+import { apiFetch } from '../lib/api';
 
 export const TourLink = ({ client_tour_id, tour_name }: TourLinkProps) => (
 	<Link to={`/tours/${client_tour_id}/points`} className="tour-detail">
@@ -23,19 +24,13 @@ export const TourDetail = ({
 		}
 
 		try {
-			const response = await fetch(`/api/internal/tours/${client_tour_id}`, {
+			await apiFetch(`/api/internal/tours/${client_tour_id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-				},
 			});
-			if (!response.ok) {
-				throw new Error('APIエラー');
-			}
 			onDelete(client_tour_id);
 		} catch (error) {
-			console.error(error);
-			alert('削除に失敗しました');
+			console.error('削除に失敗しました。');
+			alert('削除に失敗しました。再度お試しください');
 		}
 	};
 

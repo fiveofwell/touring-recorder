@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { TourDistance, MapView } from '../components/MapView';
 import type { Point } from '../types/types';
+import { apiFetch } from '../lib/api';
 
 const parsePoint = (raw: any): Point => ({
 	...raw,
@@ -18,24 +19,15 @@ export const TourDetailPage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const response = await fetch(
+				const response = await apiFetch(
 					`/api/internal/tours/${client_tour_id}/points`,
-					{
-						headers: {
-							Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-						},
-					},
 				);
-
-				if (!response.ok) {
-					throw new Error('APIエラー');
-				}
 
 				const data = await response.json();
 				setPoints(data.points.map((p: any) => parsePoint(p)));
 				setLoading(false);
 			} catch (error) {
-				console.error(error);
+				console.error('ツーリングデータの取得に失敗しました: ', error);
 				setFailed(true);
 			} finally {
 				setLoading(false);

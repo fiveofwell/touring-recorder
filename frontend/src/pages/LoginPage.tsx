@@ -55,14 +55,16 @@ const LoginPage = () => {
 			};
 
 			localStorage.setItem('access_token', token.access_token);
-			localStorage.setItem('token_type', token.token_type);
 			navigate('/tours');
 		} catch (err) {
+			console.error('ログインに失敗しました:', err);
+
 			if (err instanceof Error) {
 				setError(err.message);
-			} else {
-				setError('ログインに失敗しました。');
+				return;
 			}
+
+			setError('ログインに失敗しました。');
 		} finally {
 			setIsSubmitting(false);
 		}

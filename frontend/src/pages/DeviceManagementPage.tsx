@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import type { Device } from '../types/types';
 import { DeviceListItem } from '../components/DeviceListItem';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../lib/api';
 
 const parseDevice = (raw: any): Device => ({
 	...raw,
@@ -19,7 +20,7 @@ export const DeviceManagementPage = () => {
 	const navigate = useNavigate();
 	const [devices, setDevices] = useState<Device[]>([]);
 	const [failed, setFailed] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 
 	const handleDelete = (device_id: string) => {
 		setDevices((prev) => prev.filter((d) => d.device_id !== device_id));
@@ -28,27 +29,20 @@ export const DeviceManagementPage = () => {
 	useEffect(() => {
 		const fetchDevices = async () => {
 			try {
-				const response = await fetch('/api/internal/devices', {
-					headers: {
-						Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-					},
-				});
-				if (!response.ok) {
-					throw new Error('APIエラー');
-				}
+				const response = await apiFetch('/api/internal/devices');
 				const data = await response.json();
 				setDevices(data.map((d: any) => parseDevice(d)));
 			} catch (error) {
-				console.error(error);
+				console.error('デバイスの取得に失敗しました:', error);
 				setFailed(true);
 			} finally {
-				setIsLoading(false);
+				setLoading(false);
 			}
 		};
 		fetchDevices();
 	}, []);
 
-	if (isLoading) return <p>Loading...</p>;
+	if (loading) return <p>Loading...</p>;
 	if (failed) return <p>デバイスの取得に失敗しました</p>;
 
 	return (

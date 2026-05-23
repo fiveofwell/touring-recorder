@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { apiFetch } from '../lib/api';
 
 export const Header = () => {
 	const navigate = useNavigate();
@@ -8,20 +9,11 @@ export const Header = () => {
 	const handleLogout = async () => {
 		setIsLoggingOut(true);
 		try {
-			const response = await fetch('/token', {
+			await apiFetch('/token', {
 				method: 'DELETE',
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-				},
 			});
-
-			if (!response.ok) {
-				throw new Error('サーバーとの同期に失敗しました');
-			}
-		} catch (err) {
-			console.error(
-				err instanceof Error ? err.message : 'ログアウトに失敗しました。',
-			);
+		} catch (error) {
+			console.error('サーバーとの同期に失敗しました。: ', error);
 		} finally {
 			localStorage.removeItem('access_token');
 			setIsLoggingOut(false);
