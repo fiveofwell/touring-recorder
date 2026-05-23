@@ -31,6 +31,20 @@ const LoginPage = () => {
 				}).toString(),
 			});
 
+			if (response.status === 429) {
+				const retryAfterHeader = response.headers.get('Retry-After');
+				if (retryAfterHeader) {
+					const retryAfter = parseInt(retryAfterHeader, 10);
+					throw new Error(
+						`ログイン試行が多すぎます。${retryAfter}秒後に再試行してください。`,
+					);
+				} else {
+					throw new Error(
+						'ログイン試行が多すぎます。しばらくしてから再試行してください。',
+					);
+				}
+			}
+
 			if (!response.ok) {
 				throw new Error('ログインに失敗しました');
 			}
@@ -44,7 +58,11 @@ const LoginPage = () => {
 			localStorage.setItem('token_type', token.token_type);
 			navigate('/tours');
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'ログインに失敗しました。');
+			if (err instanceof Error) {
+				setError(err.message);
+			} else {
+				setError('ログインに失敗しました。');
+			}
 		} finally {
 			setIsSubmitting(false);
 		}
