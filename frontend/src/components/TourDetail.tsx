@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import type { TourLinkProps, TourDetailProps } from '../types/types';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 export const TourLink = ({ client_tour_id, tour_name }: TourLinkProps) => (
 	<Link to={`/tours/${client_tour_id}/points`} className="tour-detail">
@@ -29,8 +30,9 @@ export const TourDetail = ({
 			});
 			onDelete(client_tour_id);
 		} catch (error) {
-			console.error('削除に失敗しました。');
-			alert('削除に失敗しました。再度お試しください');
+			if (error instanceof UnauthorizedError) return;
+			console.error('ツーリングの削除に失敗しました: ', error);
+			alert('ツーリングの削除に失敗しました。再度お試しください。');
 		}
 	};
 

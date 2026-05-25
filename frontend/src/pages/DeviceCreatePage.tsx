@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { NewDevice } from '../types/types';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 export const DeviceCreatePage = () => {
 	const navigate = useNavigate();
@@ -12,7 +13,7 @@ export const DeviceCreatePage = () => {
 		const normalizedDeviceName = newDeviceName.trim();
 
 		if (!normalizedDeviceName) {
-			alert('新しいデバイス名を入力してください');
+			alert('新しいデバイス名を入力してください。');
 			return;
 		}
 		try {
@@ -24,12 +25,13 @@ export const DeviceCreatePage = () => {
 			});
 			setNewDevice(await response.json());
 		} catch (error) {
+			if (error instanceof UnauthorizedError) return;
 			if (error instanceof Error && error.message.includes('409')) {
 				alert('デバイス名が既に存在しています。別の名前を入力してください。');
 				return;
 			}
 			console.error('デバイスの作成に失敗しました:', error);
-			alert('変更に失敗しました。再度お試しください');
+			alert('変更に失敗しました。再度お試しください。');
 		}
 	};
 

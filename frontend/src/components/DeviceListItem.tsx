@@ -1,5 +1,6 @@
 import type { Device } from '../types/types';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 export const DeviceListItem = ({
 	device,
@@ -19,8 +20,9 @@ export const DeviceListItem = ({
 			});
 			onDelete(device.device_id);
 		} catch (error) {
+			if (error instanceof UnauthorizedError) return;
 			console.error('デバイスの削除に失敗しました: ', error);
-			alert('削除に失敗しました。再度お試しください。');
+			alert('デバイスの削除に失敗しました。再度お試しください。');
 		}
 	};
 

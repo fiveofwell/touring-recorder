@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 export const TourNameChangePage = () => {
 	const navigate = useNavigate();
@@ -11,7 +12,7 @@ export const TourNameChangePage = () => {
 		const normalizedTourName = newTourName.trim();
 
 		if (!normalizedTourName) {
-			alert('新しいツーリング名を入力してください');
+			alert('新しいツーリング名を入力してください。');
 			return;
 		}
 		try {
@@ -23,8 +24,9 @@ export const TourNameChangePage = () => {
 			});
 			navigate('/tours');
 		} catch (error) {
-			console.error('ツーリング名の変更に失敗しました:', error);
-			alert('変更に失敗しました。再度お試しください');
+			if (error instanceof UnauthorizedError) return;
+			console.error('ツーリング名の変更に失敗しました: ', error);
+			alert('ツーリング名の変更に失敗しました。再度お試しください。');
 		}
 	};
 

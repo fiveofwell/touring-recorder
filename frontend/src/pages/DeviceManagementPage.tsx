@@ -4,6 +4,7 @@ import type { Device } from '../types/types';
 import { DeviceListItem } from '../components/DeviceListItem';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 const parseDevice = (raw: any): Device => ({
 	...raw,
@@ -33,7 +34,8 @@ export const DeviceManagementPage = () => {
 				const data = await response.json();
 				setDevices(data.map((d: any) => parseDevice(d)));
 			} catch (error) {
-				console.error('デバイスの取得に失敗しました:', error);
+				if (error instanceof UnauthorizedError) return;
+				console.error('デバイスの取得に失敗しました: ', error);
 				setFailed(true);
 			} finally {
 				setLoading(false);

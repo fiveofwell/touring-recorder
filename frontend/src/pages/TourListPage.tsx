@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TourDetail } from '../components/TourDetail';
 import type { Tour } from '../types/types';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 const parseTour = (raw: any): Tour => ({
 	...raw,
@@ -26,7 +27,8 @@ export const TourListPage = () => {
 				const data = await response.json();
 				setTours(data.map((t: any) => parseTour(t)));
 			} catch (error) {
-				console.error('ツーリングの取得に失敗しました:', error);
+				if (error instanceof UnauthorizedError) return;
+				console.error('ツーリングの取得に失敗しました: ', error);
 				setFailed(true);
 			} finally {
 				setLoading(false);

@@ -45,8 +45,12 @@ const LoginPage = () => {
 				}
 			}
 
+			if (response.status === 401) {
+				throw new Error('ユーザー名またはパスワードが正しくありません。');
+			}
+
 			if (!response.ok) {
-				throw new Error('ログインに失敗しました');
+				throw new Error('ログインに失敗しました。');
 			}
 
 			const token = (await response.json()) as {
@@ -56,14 +60,20 @@ const LoginPage = () => {
 
 			localStorage.setItem('access_token', token.access_token);
 			navigate('/tours');
-		} catch (err) {
-			console.error('ログインに失敗しました:', err);
-
-			if (err instanceof Error) {
-				setError(err.message);
+		} catch (error) {
+			if (error instanceof TypeError) {
+				setError(
+					'ネットワークエラーが発生しました。サーバーが起動していることを確認してください。',
+				);
 				return;
 			}
 
+			if (error instanceof Error) {
+				setError(error.message);
+				return;
+			}
+
+			console.error('予期しないエラー: ', error);
 			setError('ログインに失敗しました。');
 		} finally {
 			setIsSubmitting(false);

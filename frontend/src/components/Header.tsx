@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 export const Header = () => {
 	const navigate = useNavigate();
@@ -13,7 +14,8 @@ export const Header = () => {
 				method: 'DELETE',
 			});
 		} catch (error) {
-			console.error('サーバーとの同期に失敗しました。: ', error);
+			if (error instanceof UnauthorizedError) return;
+			console.error('サーバーとの同期に失敗しました: ', error);
 		} finally {
 			localStorage.removeItem('access_token');
 			setIsLoggingOut(false);

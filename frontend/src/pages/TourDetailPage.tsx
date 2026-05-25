@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { TourDistance, MapView } from '../components/MapView';
 import type { Point } from '../types/types';
 import { apiFetch } from '../lib/api';
+import { UnauthorizedError } from '../lib/errors';
 
 const parsePoint = (raw: any): Point => ({
 	...raw,
@@ -27,6 +28,7 @@ export const TourDetailPage = () => {
 				setPoints(data.points.map((p: any) => parsePoint(p)));
 				setLoading(false);
 			} catch (error) {
+				if (error instanceof UnauthorizedError) return;
 				console.error('ツーリングデータの取得に失敗しました: ', error);
 				setFailed(true);
 			} finally {
