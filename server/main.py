@@ -12,9 +12,9 @@ from schemas.api_schema import UserPost, UserResponse, Token
 from redis_client import get_redis_client
 
 app = FastAPI(
-    docs_url="/api/internal/docs",
-    redoc_url="/api/internal/redoc",
-    openapi_url="/api/internal/openapi.json"
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 
 app.include_router(public_api_router)
