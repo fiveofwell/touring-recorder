@@ -10,6 +10,7 @@ import security
 from rate_limit import rate_limit
 from schemas.api_schema import UserPost, UserResponse, Token
 from redis_client import get_redis_client
+import settings
 
 app = FastAPI(
     docs_url=None,
@@ -51,12 +52,12 @@ def logout(
     security.logout(token, redis_client)
     return None
 
-
-@app.post("/users", response_model=UserResponse)
-def create_user(
-    new_user: UserPost,
-    session: Session = Depends(get_session),
-    _: None = Depends(rate_limit(limit=5, window=60))
-):
-    return security.create_user(new_user.username, new_user.password, session)
+if settings.ALLOW_USER_REGISTRATION:
+    @app.post("/users", response_model=UserResponse)
+    def create_user(
+        new_user: UserPost,
+        session: Session = Depends(get_session),
+        _: None = Depends(rate_limit(limit=5, window=60))
+    ):
+        return security.create_user(new_user.username, new_user.password, session)
 
