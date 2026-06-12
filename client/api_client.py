@@ -9,12 +9,11 @@ logger = logging.getLogger(__name__)
 def post_gps_data(tour_id, points):
     headers = {'X-API-KEY': settings.X_API_KEY}
     payload = {
-        "device_id": settings.DEVICE_ID,
         "points": points,
     }
 
     try:
-        api_url = urlparse.urljoin(settings.API_URL, tour_id)
+        api_url = f"{settings.API_URL}/{tour_id}/points"
 
         response = requests.post(
             api_url,

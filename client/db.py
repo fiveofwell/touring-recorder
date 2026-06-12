@@ -15,7 +15,7 @@ def init_send_queue_db():
                 tour_id TEXT,
                 latitude REAL,
                 longitude REAL,
-                timestamp TEXT
+                recorded_at TEXT
             )
         """)
 
@@ -35,7 +35,7 @@ def dequeue_data():
             SELECT client_point_id,
             latitude,
             longitude,
-            timestamp
+            recorded_at
             FROM gps_send_queue
             WHERE tour_id = ?
             ORDER BY client_point_id
@@ -69,7 +69,7 @@ def dequeue_data():
         return "sent" 
 
 
-def enqueue_data(tour_id, latitude, longitude, timestamp):
+def enqueue_data(tour_id, latitude, longitude, recorded_at):
     with sqlite3.connect(settings.DBNAME) as conn:
         cur = conn.cursor()
 
@@ -77,9 +77,9 @@ def enqueue_data(tour_id, latitude, longitude, timestamp):
             tour_id,
             latitude,
             longitude,
-            timestamp
+            recorded_at
         )
-        sql = 'INSERT INTO gps_send_queue (tour_id, latitude, longitude, timestamp) VALUES (?, ?, ?, ?)'
+        sql = 'INSERT INTO gps_send_queue (tour_id, latitude, longitude, recorded_at) VALUES (?, ?, ?, ?)'
 
         cur.execute(sql, values)
         conn.commit()
