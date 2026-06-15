@@ -1,7 +1,7 @@
 export type Point = {
 	latitude: number;
 	longitude: number;
-	timestamp: Date;
+	recorded_at: Date;
 };
 
 export type Tour = {

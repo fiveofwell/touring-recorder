@@ -7,7 +7,7 @@ import { UnauthorizedError } from '../lib/errors';
 
 const parsePoint = (raw: any): Point => ({
 	...raw,
-	timestamp: new Date(raw.timestamp + 'Z'),
+	recorded_at: new Date(raw.recorded_at + 'Z'),
 });
 
 export const TourDetailPage = () => {

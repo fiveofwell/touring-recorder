@@ -41,12 +41,12 @@ const SetMarkers = ({ points }: { points: Point[] }) => {
 		<>
 			<Marker position={startMarkerPosition}>
 				<Popup>
-					ツーリング開始:{startPoint.timestamp.toLocaleString('ja-JP')}
+					ツーリング開始:{startPoint.recorded_at.toLocaleString('ja-JP')}
 				</Popup>
 			</Marker>
 			<Marker position={endMarkerPosition}>
 				<Popup>
-					ツーリング終了:{endPoint.timestamp.toLocaleString('ja-JP')}
+					ツーリング終了:{endPoint.recorded_at.toLocaleString('ja-JP')}
 				</Popup>
 			</Marker>
 		</>
