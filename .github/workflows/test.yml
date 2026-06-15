@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Create .env file
         working-directory: ./server
@@ -23,6 +23,7 @@ jobs:
           echo "ALGORITHM=${{ secrets.ALGORITHM }}" > .env
           echo "ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "ALLOW_USER_REGISTRATION=${{ secrets.ALLOW_USER_REGISTRATION }}" >> .env
 
       - name: Install dependencies
         working-directory: ./server
