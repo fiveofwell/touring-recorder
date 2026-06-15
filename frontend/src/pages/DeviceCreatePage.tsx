@@ -7,6 +7,7 @@ import { UnauthorizedError } from '../lib/errors';
 export const DeviceCreatePage = () => {
 	const navigate = useNavigate();
 	const [newDeviceName, setNewDeviceName] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [newDevice, setNewDevice] = useState<NewDevice | null>(null);
 
 	const createDevice = async () => {
@@ -16,6 +17,8 @@ export const DeviceCreatePage = () => {
 			alert('新しいデバイス名を入力してください。');
 			return;
 		}
+
+		setIsSubmitting(true);
 		try {
 			const response = await apiFetch(`/api/internal/devices`, {
 				method: 'POST',
@@ -32,6 +35,8 @@ export const DeviceCreatePage = () => {
 			}
 			console.error('デバイスの作成に失敗しました:', error);
 			alert('変更に失敗しました。再度お試しください。');
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
@@ -67,7 +72,9 @@ export const DeviceCreatePage = () => {
 					onChange={(event) => setNewDeviceName(event.target.value)}
 				/>
 			</label>
-			<button onClick={createDevice}>デバイスを作成</button>
+			<button onClick={createDevice} disabled={isSubmitting}>
+				{isSubmitting ? '作成中...' : 'デバイスを作成'}
+			</button>
 		</>
 	);
 };

@@ -1,6 +1,7 @@
 import type { Device } from '../types/types';
 import { apiFetch } from '../lib/api';
 import { UnauthorizedError } from '../lib/errors';
+import { useState } from 'react';
 
 export const DeviceListItem = ({
 	device,
@@ -9,11 +10,18 @@ export const DeviceListItem = ({
 	device: Device;
 	onDelete: (id: string) => void;
 }) => {
+	const [isDeleting, setIsDeleting] = useState(false);
+
 	const deleteDevice = async () => {
+		if (isDeleting) {
+			return;
+		}
+
 		if (!confirm('本当にこのデバイスを削除しますか？')) {
 			return;
 		}
 
+		setIsDeleting(true);
 		try {
 			await apiFetch(`/api/internal/devices/${device.device_id}`, {
 				method: 'DELETE',
@@ -23,6 +31,8 @@ export const DeviceListItem = ({
 			if (error instanceof UnauthorizedError) return;
 			console.error('デバイスの削除に失敗しました: ', error);
 			alert('デバイスの削除に失敗しました。再度お試しください。');
+		} finally {
+			setIsDeleting(false);
 		}
 	};
 
@@ -37,7 +47,9 @@ export const DeviceListItem = ({
 					? device.api_key.last_used_at.toLocaleString()
 					: '未使用'}
 			</p>
-			<button onClick={deleteDevice}>削除</button>
+			<button onClick={deleteDevice} disabled={isDeleting}>
+				{isDeleting ? '削除中...' : '削除'}
+			</button>
 			<hr />
 		</li>
 	);
